@@ -120,44 +120,6 @@ MainTab:CreateToggle({
 })
 
 -------------------------------------------------------
--- 🍉 AUTO BUY FOOD (MULTI SELECT, 45s DELAY, FIX)
--------------------------------------------------------
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local FoodStoreRE = ReplicatedStorage:WaitForChild("Remote"):WaitForChild("FoodStoreRE")
-
-local availableFoods = {
-   "FrankenKiwi",
-   "Pumpkin",
-   "CandyCorn",
-   "Durian",
-   "VoltGinkgo",
-   "ColossalPinecone"
-}
-
-_G.SelectedFoods = {}
-_G.AutoBuyFoodEnabled = false
-local delayTime = 45
-
--------------------------------------------------------
--- 🍌 Dropdown Pilihan Buah
--------------------------------------------------------
-local FoodDropdown = MainTab:CreateDropdown({
-   Name = "Select Foods to Auto Buy",
-   Options = availableFoods,
-   CurrentOption = {},
-   MultipleOptions = true,
-   Flag = "FoodDropdown",
-   Callback = function(Options)
-      _G.SelectedFoods = Options
-      game.StarterGui:SetCore("SendNotification", {
-         Title = "🍍 Food Selection Updated",
-         Text = (#Options > 0 and "Dipilih: " .. table.concat(Options, ", ") or "Tidak ada buah dipilih"),
-         Duration = 4
-      })
-   end,
-})
-
--------------------------------------------------------
 -- 🍉 AUTO BUY FOOD (MULTI SELECT, SEMUA SEKALIGUS SETIAP 45 DETIK)
 -------------------------------------------------------
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -248,3 +210,4 @@ MainTab:CreateToggle({
       end
    end,
 })
+
