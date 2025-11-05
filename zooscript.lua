@@ -29,26 +29,22 @@ MainTab:CreateToggle({
    CurrentValue = false,
    Flag = "LowGraphicToggle",
    Callback = function(Value)
-      -- Abaikan pemanggilan pertama (Rayfield kadang auto-call saat load)
       if not lowGraphicInitialized then
          lowGraphicInitialized = true
          return
       end
 
-      -- 🧱 Semua fungsi langsung di sini
       local RunService = game:GetService("RunService")
       local SoundService = game:GetService("SoundService")
       local Lighting = game:GetService("Lighting")
       local Players = game:GetService("Players")
       local player = Players.LocalPlayer
       if not player then return end
-
       local PlayerGui = player:FindFirstChild("PlayerGui") or player:WaitForChild("PlayerGui", 5)
 
       if Value then
          print("[Low Graphic Mode] ENABLED")
 
-         -- Overlay hitam
          if not PlayerGui:FindFirstChild("LowGraphicOverlay") then
             local gui = Instance.new("ScreenGui")
             gui.Name = "LowGraphicOverlay"
@@ -59,14 +55,11 @@ MainTab:CreateToggle({
             local frame = Instance.new("Frame")
             frame.Size = UDim2.new(1, 0, 1, 0)
             frame.BackgroundColor3 = Color3.new(0, 0, 0)
-            frame.BackgroundTransparency = 0
             frame.BorderSizePixel = 0
             frame.Parent = gui
-
             gui.Parent = PlayerGui
          end
 
-         -- Matikan visual
          pcall(function() RunService:Set3dRenderingEnabled(false) end)
          pcall(function() SoundService.Volume = 0 end)
 
@@ -76,7 +69,6 @@ MainTab:CreateToggle({
             end
          end
 
-         -- Lighting minim
          pcall(function()
             Lighting.GlobalShadows = false
             Lighting.FogEnd = 200
@@ -91,7 +83,6 @@ MainTab:CreateToggle({
       else
          print("[Low Graphic Mode] DISABLED")
 
-         -- Pulihkan tampilan
          local overlay = PlayerGui:FindFirstChild("LowGraphicOverlay")
          if overlay then overlay:Destroy() end
 
@@ -145,12 +136,12 @@ local FoodDropdown = MainTab:CreateDropdown({
    Name = "Select Foods to Auto Buy",
    Options = availableFoods,
    CurrentOption = {},
-   MultipleOptions = true, -- ✅ bisa pilih banyak
+   MultipleOptions = true,
    Flag = "FoodDropdown",
    Callback = function(Options)
       SelectedFoods = Options
       game.StarterGui:SetCore("SendNotification", {
-         Title = " Food Selection Updated",
+         Title = "🍍 Food Selection Updated",
          Text = (#Options > 0 and "Dipilih: " .. table.concat(Options, ", ") or "Tidak ada buah dipilih"),
          Duration = 4
       })
@@ -169,7 +160,7 @@ MainTab:CreateToggle({
 
       if Value then
          game.StarterGui:SetCore("SendNotification", {
-            Title = "Auto Buy Food",
+            Title = "🍓 Auto Buy Food",
             Text = "Crot",
             Duration = 4
          })
@@ -186,12 +177,12 @@ MainTab:CreateToggle({
                   end
 
                   game.StarterGui:SetCore("SendNotification", {
-                     Title = " Membeli Batch Buah",
+                     Title = "🍎 Membeli Batch Buah",
                      Text = "Crot",
                      Duration = 3
                   })
                else
-                  warn("Crot")
+                  warn("[AutoBuyFood] Tidak ada buah yang dipilih.")
                end
 
                -- Tunggu 45 detik sebelum batch berikutnya
@@ -203,11 +194,10 @@ MainTab:CreateToggle({
          end)
       else
          game.StarterGui:SetCore("SendNotification", {
-            Title = "Auto Buy Food",
+            Title = "🍇 Auto Buy Food",
             Text = "Berhenti.",
             Duration = 3
          })
       end
    end,
 })
-
