@@ -122,7 +122,8 @@ local availableFoods = {
    "CandyCorn",
    "Durian",
    "VoltGinkgo",
-   "ColossalPinecone"
+   "ColossalPinecone",
+   "Strawberry"
 }
 
 local SelectedFoods = {}
