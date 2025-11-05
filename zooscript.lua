@@ -187,7 +187,7 @@ MainTab:CreateToggle({
 
                   game.StarterGui:SetCore("SendNotification", {
                      Title = " Membeli Batch Buah",
-                     Text = "Crot"),
+                     Text = "Crot",
                      Duration = 3
                   })
                else
