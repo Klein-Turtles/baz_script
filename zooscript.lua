@@ -132,7 +132,7 @@ local foods = {
    "Pumpkin",
    "CandyCorn",
    "Durian",
-   "VoltGingko",
+   "VoltGinkgo",
    "ColossalPinecone"
 }
 
@@ -144,7 +144,7 @@ MainTab:CreateDropdown({
    Name = "Select Food",
    Options = foods,
    CurrentOption = {_G.SelectedFood},
-   MultipleOptions = false,
+   MultipleOptions = true,
    Flag = "FoodSelectDropdown",
    Callback = function(Options)
       _G.SelectedFood = Options[1]
