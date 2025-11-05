@@ -1,3 +1,4 @@
+if game.PlaceID == 105555311806207 then
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
@@ -40,17 +41,20 @@ local Window = Rayfield:CreateWindow({
 local MainTab = Window:CreateTab("Home", nil) -- Title, Image
 local MainSection = Tab:CreateSection("Feature")
 
-local Button = Tab:CreateButton({
+local Toggle = Tab:CreateToggle({
    Name = "Low Graphic Mode",
-   Callback = function()
+   CurrentValue = false,
+   Flag = "LowGraphicToggle",
+   Callback = function(Value)
+      -- Value = true → ON
+      -- Value = false → OFF
+
       local RunService = game:GetService("RunService")
       local SoundService = game:GetService("SoundService")
-      local Lighting = game:GetService("Lighting")
       local player = game.Players.LocalPlayer
       local PlayerGui = player:WaitForChild("PlayerGui")
 
-      -- Kalau overlay belum ada, berarti mode belum aktif
-      if not PlayerGui:FindFirstChild("LowGraphicOverlay") then
+      if Value then
          -- 🟢 Aktifkan mode ringan
          print("[Low Graphic Mode] ENABLED")
 
@@ -74,12 +78,13 @@ local Button = Tab:CreateButton({
          RunService:Set3dRenderingEnabled(false)
          SoundService.Volume = 0
 
-         -- ❌ Matikan efek (particle, beam, trail)
+         -- ❌ Matikan efek partikel, beam, trail
          for _, obj in ipairs(workspace:GetDescendants()) do
             if obj:IsA("ParticleEmitter") or obj:IsA("Beam") or obj:IsA("Trail") then
                obj.Enabled = false
             end
          end
+
       else
          -- 🔴 Nonaktifkan mode ringan
          print("[Low Graphic Mode] DISABLED")
@@ -87,10 +92,11 @@ local Button = Tab:CreateButton({
          local overlay = PlayerGui:FindFirstChild("LowGraphicOverlay")
          if overlay then overlay:Destroy() end
 
+         -- Nyalakan lagi rendering & suara
          RunService:Set3dRenderingEnabled(true)
          SoundService.Volume = 1
 
-         -- ✅ Nyalakan lagi efeknya
+         -- ✅ Aktifkan lagi efek
          for _, obj in ipairs(workspace:GetDescendants()) do
             if obj:IsA("ParticleEmitter") or obj:IsA("Beam") or obj:IsA("Trail") then
                obj.Enabled = true
@@ -99,4 +105,3 @@ local Button = Tab:CreateButton({
       end
    end,
 })
-
