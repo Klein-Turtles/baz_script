@@ -120,18 +120,25 @@ MainTab:CreateToggle({
 })
 
 -------------------------------------------------------
--- 🍌 Auto Buy Food (Dynamic Delay System)
+-- 🍌 Auto Buy Food (Final Version)
 -------------------------------------------------------
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CharacterRE = ReplicatedStorage:WaitForChild("Remote"):WaitForChild("CharacterRE")
 
-local foodList = {"FrankenKiwi", "Pumpkin", "CandyCorn", "Durian", "VoltGingko", "ColossalPinecone"}
-local delayTime = 45 -- detik antar pembelian
+local foodList = {
+   "FrankenKiwi",
+   "Pumpkin",
+   "CandyCorn",
+   "Durian",
+   "VoltGingko",
+   "ColossalPinecone"
+}
 
+local delayTime = 45 -- detik antar pembelian
 _G.AutoBuyFoodActive = false
 _G.SelectedFood = foodList[1]
 
--- Dropdown pilih makanan
+-- Dropdown untuk pilih buah
 MainTab:CreateDropdown({
    Name = "Select Food Type",
    Options = foodList,
@@ -141,14 +148,14 @@ MainTab:CreateDropdown({
    Callback = function(Options)
       _G.SelectedFood = Options[1]
       game.StarterGui:SetCore("SendNotification", {
-         Title = "Food Target Updated",
-         Text = "Sekarang target makanan: " .. _G.SelectedFood .. " 🍎",
+         Title = "Auto Buy Food",
+         Text = "Target makanan diubah ke: " .. _G.SelectedFood,
          Duration = 3
       })
    end,
 })
 
--- Toggle auto buy makanan
+-- Toggle Auto Buy
 MainTab:CreateToggle({
    Name = "Auto Buy Food",
    CurrentValue = false,
@@ -159,14 +166,14 @@ MainTab:CreateToggle({
       if Value then
          game.StarterGui:SetCore("SendNotification", {
             Title = "Auto Buy Food",
-            Text = "🟢 Dinyalakan — target: " .. _G.SelectedFood,
+            Text = "🟢 Dinyalakan — Membeli " .. _G.SelectedFood,
             Duration = 3
          })
 
          task.spawn(function()
             while _G.AutoBuyFoodActive do
                pcall(function()
-                  CharacterRE:FireServer("BuyFood", _G.SelectedFood)
+                  CharacterRE:FireServer("FoodStoreRE", _G.SelectedFood)
                end)
 
                game.StarterGui:SetCore("SendNotification", {
@@ -188,3 +195,4 @@ MainTab:CreateToggle({
       end
    end,
 })
+
