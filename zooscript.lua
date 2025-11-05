@@ -120,10 +120,10 @@ MainTab:CreateToggle({
 })
 
 -------------------------------------------------------
--- 🍌 Auto Buy Food (Final Version)
+-- 🍓 Auto Buy Food (Fix)
 -------------------------------------------------------
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local CharacterRE = ReplicatedStorage:WaitForChild("Remote"):WaitForChild("CharacterRE")
+local FoodStoreRE = ReplicatedStorage:WaitForChild("Remote"):WaitForChild("FoodStoreRE")
 
 local foodList = {
    "FrankenKiwi",
@@ -134,11 +134,11 @@ local foodList = {
    "ColossalPinecone"
 }
 
-local delayTime = 45 -- detik antar pembelian
+local delayTime = 45
 _G.AutoBuyFoodActive = false
 _G.SelectedFood = foodList[1]
 
--- Dropdown untuk pilih buah
+-- Dropdown pilih makanan
 MainTab:CreateDropdown({
    Name = "Select Food Type",
    Options = foodList,
@@ -149,13 +149,13 @@ MainTab:CreateDropdown({
       _G.SelectedFood = Options[1]
       game.StarterGui:SetCore("SendNotification", {
          Title = "Auto Buy Food",
-         Text = "Target makanan diubah ke: " .. _G.SelectedFood,
+         Text = "🎯 Target makanan diubah ke: " .. _G.SelectedFood,
          Duration = 3
       })
    end,
 })
 
--- Toggle Auto Buy
+-- Toggle untuk mulai/berhenti auto buy
 MainTab:CreateToggle({
    Name = "Auto Buy Food",
    CurrentValue = false,
@@ -166,30 +166,29 @@ MainTab:CreateToggle({
       if Value then
          game.StarterGui:SetCore("SendNotification", {
             Title = "Auto Buy Food",
-            Text = "🟢 Dinyalakan — Membeli " .. _G.SelectedFood,
+            Text = "🟢 Auto Buy diaktifkan untuk " .. _G.SelectedFood,
             Duration = 3
          })
 
          task.spawn(function()
             while _G.AutoBuyFoodActive do
                pcall(function()
-                  CharacterRE:FireServer("FoodStoreRE", _G.SelectedFood)
+                  FoodStoreRE:FireServer(_G.SelectedFood)
                end)
 
                game.StarterGui:SetCore("SendNotification", {
                   Title = "Auto Buy Food",
-                  Text = "Membeli " .. _G.SelectedFood .. " 🍎",
-                  Duration = 4
+                  Text = "🍎 Membeli " .. _G.SelectedFood,
+                  Duration = 3
                })
 
                task.wait(delayTime)
             end
          end)
-
       else
          game.StarterGui:SetCore("SendNotification", {
             Title = "Auto Buy Food",
-            Text = "🔴 Dimatikan",
+            Text = "🔴 Auto Buy dimatikan",
             Duration = 3
          })
       end
