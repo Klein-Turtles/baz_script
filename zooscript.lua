@@ -122,60 +122,134 @@ MainTab:CreateToggle({
 -------------------------------------------------------
 -- 🥚 Dropdown Auto Buy Egg
 -------------------------------------------------------
+-------------------------------------------------------
+-- 🥚 Dropdown Pilih Telur
+-------------------------------------------------------
+local selectedEgg = "Basic Egg"
 MainTab:CreateDropdown({
-   Name = "Auto Buy Egg",
+   Name = "Select Egg",
    Options = {"Basic Egg", "Rare Egg", "Super Rare Egg", "Hyper Egg", "Void Egg", "Bowser Egg", "Shark Egg"},
    CurrentOption = {"Basic Egg"},
    MultipleOptions = false,
    Flag = "EggDropdown",
    Callback = function(Options)
-      local eggName = Options[1]
-      local ReplicatedStorage = game:GetService("ReplicatedStorage")
-      local buyEggEvent = ReplicatedStorage:FindFirstChild("Remote") and ReplicatedStorage.Remote:FindFirstChild("ResourceRE")
+      selectedEgg = Options[1]
+   end,
+})
 
-      if not buyEggEvent then
-         warn("[AutoBuyEgg] Event tidak ditemukan!")
-         return
+local autoEgg = false
+MainTab:CreateToggle({
+   Name = "Auto Buy Egg",
+   CurrentValue = false,
+   Flag = "AutoBuyEggToggle",
+   Callback = function(Value)
+      autoEgg = Value
+
+      if autoEgg then
+         task.spawn(function()
+            while autoEgg do
+               local ReplicatedStorage = game:GetService("ReplicatedStorage")
+               local buyEggEvent = ReplicatedStorage:FindFirstChild("Remote") and ReplicatedStorage.Remote:FindFirstChild("ResourceRE")
+
+               if not buyEggEvent then
+                  warn("[AutoBuyEgg] Event tidak ditemukan!")
+                  return
+               end
+
+               pcall(function()
+                  buyEggEvent:FireServer("PULL", "Eggs/" .. selectedEgg)
+               end)
+
+               game.StarterGui:SetCore("SendNotification", {
+                  Title = "Auto Buy Egg",
+                  Text = "Membeli " .. selectedEgg .. " 🥚",
+                  Duration = 3
+               })
+
+               task.wait(45) -- delay 45 detik antar pembelian
+            end
+         end)
       end
-
-      pcall(function()
-         buyEggEvent:FireServer("PULL", "Eggs/" .. eggName)
-      end)
-
-      game.StarterGui:SetCore("SendNotification", {
-         Title = "Auto Buy Egg",
-         Text = "Membeli " .. eggName .. " 🥚",
-         Duration = 3
-      })
    end,
 })
 
 -------------------------------------------------------
--- 🍌 Dropdown Auto Buy Food
+-- 🍌 Dropdown Pilih Food
 -------------------------------------------------------
+local selectedFood = "Banana"
 MainTab:CreateDropdown({
-   Name = "Auto Buy Food",
+   Name = "Select Food",
    Options = {"Banana", "Pineapple", "Gold Mango", "Deep Sea Pearl Fruit", "Colossal Pinecone"},
    CurrentOption = {"Banana"},
    MultipleOptions = false,
    Flag = "FoodDropdown",
    Callback = function(Options)
-      local foodName = Options[1]
-      local ReplicatedStorage = game:GetService("ReplicatedStorage")
-      local buyFoodEvent = ReplicatedStorage:FindFirstChild("Remote") and ReplicatedStorage.Remote:FindFirstChild("ResourceRE2")
+      selectedFood = Options[1]
+   end,
+})
 
-      if not buyFoodEvent then
-         warn("[AutoBuyFood] Event tidak ditemukan!")
+local autoFood = false
+MainTab:CreateToggle({
+   Name = "Auto Buy Food",
+   CurrentValue = false,
+   Flag = "AutoBuyFoodToggle",
+   Callback = function(Value)
+      autoFood = Value
+
+      if autoFood then
+         task.spawn(function()
+            while autoFood do
+               local ReplicatedStorage = game:GetService("ReplicatedStorage")
+               local buyFoodEvent = ReplicatedStorage:FindFirstChild("Remote") and ReplicatedStorage.Remote:FindFirstChild("ResourceRE2")
+
+               if not buyFoodEvent then
+                  warn("[AutoBuyFood] Event tidak ditemukan!")
+                  return
+               end
+
+               pcall(function()
+                  buyFoodEvent:FireServer("BUY", "Food/" .. selectedFood)
+               end)
+
+               game.StarterGui:SetCore("SendNotification", {
+                  Title = "Auto Buy Food",
+                  Text = "Membeli " .. selectedFood .. " 🍎",
+                  Duration = 3
+               })
+
+               task.wait(45) -- delay 45 detik antar pembelian
+            end
+         end)
+      end
+   end,
+})
+
+-------------------------------------------------------
+-- 🧬 Dropdown Pilih Mutation
+-------------------------------------------------------
+MainTab:CreateDropdown({
+   Name = "Mutation Type",
+   Options = {"Jurassic", "Snow", "Halloween"},
+   CurrentOption = {"Jurassic"},
+   MultipleOptions = false,
+   Flag = "MutationDropdown",
+   Callback = function(Options)
+      local selectedMutation = Options[1]
+      local ReplicatedStorage = game:GetService("ReplicatedStorage")
+      local mutationEvent = ReplicatedStorage:FindFirstChild("Remote") and ReplicatedStorage.Remote:FindFirstChild("MutationRE")
+
+      if not mutationEvent then
+         warn("[Mutation] Event tidak ditemukan!")
          return
       end
 
       pcall(function()
-         buyFoodEvent:FireServer("BUY", "Food/" .. foodName)
+         mutationEvent:FireServer("APPLY", selectedMutation)
       end)
 
       game.StarterGui:SetCore("SendNotification", {
-         Title = "Auto Buy Food",
-         Text = "Membeli " .. foodName .. " 🍎",
+         Title = "Mutation Applied",
+         Text = "Mutation: " .. selectedMutation .. " 🧬",
          Duration = 3
       })
    end,
