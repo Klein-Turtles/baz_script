@@ -130,7 +130,7 @@ local availableFoods = {
    "Pumpkin",
    "CandyCorn",
    "Durian",
-   "VoltGingko",
+   "VoltGinkgo",
    "ColossalPinecone"
 }
 
