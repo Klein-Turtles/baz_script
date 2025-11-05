@@ -122,135 +122,250 @@ MainTab:CreateToggle({
 -------------------------------------------------------
 -- 🥚 Dropdown Auto Buy Egg
 -------------------------------------------------------
--------------------------------------------------------
--- 🥚 Dropdown Pilih Telur
--------------------------------------------------------
-local selectedEgg = "Basic Egg"
+-- ==== Robust Auto-Buy implementation (replace your previous auto-buy blocks) ====
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local starterGui = game:GetService("StarterGui")
+local player = Players.LocalPlayer
+
+-- Helper: try find remote by common names under ReplicatedStorage (non-destructive)
+local function findRemote(possibleNames)
+    -- check common direct children first
+    for _, name in ipairs(possibleNames) do
+        local r = ReplicatedStorage:FindFirstChild(name)
+        if r and (r:IsA("RemoteEvent") or r:IsA("RemoteFunction") or r:IsA("Folder")) then
+            return r
+        end
+    end
+
+    -- search deeper for RemoteEvent with matching names
+    for _, obj in ipairs(ReplicatedStorage:GetDescendants()) do
+        if obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction") then
+            for _, name in ipairs(possibleNames) do
+                if obj.Name:lower():match(name:lower()) then
+                    return obj
+                end
+            end
+        end
+    end
+
+    -- not found
+    return nil
+end
+
+-- Helper: convert dropdown label into probable internal id (Basic Egg -> BasicEgg)
+local function toInternalEggName(label)
+    -- common transforms, extend if needed
+    local map = {
+        ["Basic Egg"] = "BasicEgg",
+        ["Rare Egg"] = "RareEgg",
+        ["Super Rare Egg"] = "SuperRareEgg",
+        ["Hyper Egg"] = "HyperEgg",
+        ["Void Egg"] = "VoidEgg",
+        ["Bowser Egg"] = "BowserEgg",
+        ["Shark Egg"] = "SharkEgg",
+        ["UnicornProEgg"] = "UnicornProEgg", -- passthrough examples
+    }
+    if map[label] then return map[label] end
+    -- fallback: remove spaces and punctuation
+    return label:gsub("%s+", ""):gsub("[^%w]", "")
+end
+
+local function toInternalFoodName(label)
+    local map = {
+        ["Banana"] = "Banana",
+        ["Pineapple"] = "Pineapple",
+        ["Gold Mango"] = "GoldMango",
+        ["Deep Sea Pearl Fruit"] = "DeepSeaPearlFruit",
+        ["Colossal Pinecone"] = "ColossalPinecone",
+    }
+    if map[label] then return map[label] end
+    return label:gsub("%s+", ""):gsub("[^%w]", "")
+end
+
+-- ===== Egg UI: dropdown + toggle (robust) =====
+local selectedEggLabel = "Basic Egg"
 MainTab:CreateDropdown({
-   Name = "Select Egg",
-   Options = {"Basic Egg", "Rare Egg", "Super Rare Egg", "Hyper Egg", "Void Egg", "Bowser Egg", "Shark Egg"},
-   CurrentOption = {"Basic Egg"},
-   MultipleOptions = false,
-   Flag = "EggDropdown",
-   Callback = function(Options)
-      selectedEgg = Options[1]
-   end,
+    Name = "Select Egg",
+    Options = {"Basic Egg", "Rare Egg", "Super Rare Egg", "Hyper Egg", "Void Egg", "Bowser Egg", "Shark Egg"},
+    CurrentOption = {selectedEggLabel},
+    MultipleOptions = false,
+    Flag = "EggDropdown",
+    Callback = function(Options)
+        selectedEggLabel = Options[1]
+        warn("[UI] Selected egg label:", selectedEggLabel)
+    end,
 })
 
 local autoEgg = false
 MainTab:CreateToggle({
-   Name = "Auto Buy Egg",
-   CurrentValue = false,
-   Flag = "AutoBuyEggToggle",
-   Callback = function(Value)
-      autoEgg = Value
+    Name = "Auto Buy Egg",
+    CurrentValue = false,
+    Flag = "AutoBuyEggToggle",
+    Callback = function(Value)
+        autoEgg = Value
+        if not player then
+            warn("[AutoBuyEgg] LocalPlayer missing. Run client-side.")
+            return
+        end
 
-      if autoEgg then
-         task.spawn(function()
-            while autoEgg do
-               local ReplicatedStorage = game:GetService("ReplicatedStorage")
-               local buyEggEvent = ReplicatedStorage:FindFirstChild("Remote") and ReplicatedStorage.Remote:FindFirstChild("ResourceRE")
-
-               if not buyEggEvent then
-                  warn("[AutoBuyEgg] Event tidak ditemukan!")
-                  return
-               end
-
-               pcall(function()
-                  buyEggEvent:FireServer("PULL", "Eggs/" .. selectedEgg)
-               end)
-
-               game.StarterGui:SetCore("SendNotification", {
-                  Title = "Auto Buy Egg",
-                  Text = "Membeli " .. selectedEgg .. " 🥚",
-                  Duration = 3
-               })
-
-               task.wait(45) -- delay 45 detik antar pembelian
-            end
-         end)
-      end
-   end,
+        if autoEgg then
+            task.spawn(function()
+                warn("[AutoBuyEgg] started loop")
+                while autoEgg do
+                    -- map label to internal name
+                    local internalEgg = toInternalEggName(selectedEggLabel)
+                    -- try find a sensible remote (common candidates)
+                    local remote = findRemote({"ResourceRE", "BuyEgg", "BuyEggEvent", "Resource", "ResourceRE", "Remote"}) 
+                    if not remote then
+                        -- debug: list some remote names to console for help
+                        warn("[AutoBuyEgg] No RemoteEvent found under ReplicatedStorage. Available Remotes (sample):")
+                        for _, d in ipairs(ReplicatedStorage:GetDescendants()) do
+                            if d:IsA("RemoteEvent") or d:IsA("RemoteFunction") then
+                                warn(" - ", d:GetFullName())
+                            end
+                        end
+                        -- wait a bit and retry
+                        task.wait(5)
+                    else
+                        -- show which remote used
+                        warn("[AutoBuyEgg] Using remote:", remote:GetFullName(), "-> buying", internalEgg)
+                        -- call remote safely: many games expect FireServer("PULL","Eggs/Name") like your example
+                        pcall(function()
+                            if remote:IsA("RemoteEvent") then
+                                -- try common argument patterns (try several to maximize chance)
+                                local ok, err = pcall(function()
+                                    -- first try pattern "PULL","Eggs/Name"
+                                    remote:FireServer("PULL", "Eggs/"..internalEgg)
+                                end)
+                                if not ok then
+                                    -- try alternative pattern: internal only
+                                    remote:FireServer(internalEgg)
+                                end
+                            elseif remote:IsA("RemoteFunction") then
+                                -- try invoke patterns
+                                pcall(function() remote:InvokeServer("PULL", "Eggs/"..internalEgg) end)
+                            end
+                        end)
+                        -- notification & wait
+                        pcall(function()
+                            starterGui:SetCore("SendNotification", {
+                                Title = "Auto Buy Egg",
+                                Text = "Membeli "..selectedEggLabel.." ("..internalEgg..")",
+                                Duration = 3
+                            })
+                        end)
+                        task.wait(45)
+                    end
+                end
+                warn("[AutoBuyEgg] stopped loop")
+            end)
+        else
+            warn("[AutoBuyEgg] toggled off")
+        end
+    end,
 })
 
--------------------------------------------------------
--- 🍌 Dropdown Pilih Food
--------------------------------------------------------
-local selectedFood = "Banana"
+-- ===== Food UI: dropdown + toggle (robust) =====
+local selectedFoodLabel = "Banana"
 MainTab:CreateDropdown({
-   Name = "Select Food",
-   Options = {"Banana", "Pineapple", "Gold Mango", "Deep Sea Pearl Fruit", "Colossal Pinecone"},
-   CurrentOption = {"Banana"},
-   MultipleOptions = false,
-   Flag = "FoodDropdown",
-   Callback = function(Options)
-      selectedFood = Options[1]
-   end,
+    Name = "Select Food",
+    Options = {"Banana", "Pineapple", "Gold Mango", "Deep Sea Pearl Fruit", "Colossal Pinecone"},
+    CurrentOption = {selectedFoodLabel},
+    MultipleOptions = false,
+    Flag = "FoodDropdown",
+    Callback = function(Options)
+        selectedFoodLabel = Options[1]
+        warn("[UI] Selected food label:", selectedFoodLabel)
+    end,
 })
 
 local autoFood = false
 MainTab:CreateToggle({
-   Name = "Auto Buy Food",
-   CurrentValue = false,
-   Flag = "AutoBuyFoodToggle",
-   Callback = function(Value)
-      autoFood = Value
+    Name = "Auto Buy Food",
+    CurrentValue = false,
+    Flag = "AutoBuyFoodToggle",
+    Callback = function(Value)
+        autoFood = Value
+        if not player then
+            warn("[AutoBuyFood] LocalPlayer missing. Run client-side.")
+            return
+        end
 
-      if autoFood then
-         task.spawn(function()
-            while autoFood do
-               local ReplicatedStorage = game:GetService("ReplicatedStorage")
-               local buyFoodEvent = ReplicatedStorage:FindFirstChild("Remote") and ReplicatedStorage.Remote:FindFirstChild("ResourceRE2")
-
-               if not buyFoodEvent then
-                  warn("[AutoBuyFood] Event tidak ditemukan!")
-                  return
-               end
-
-               pcall(function()
-                  buyFoodEvent:FireServer("BUY", "Food/" .. selectedFood)
-               end)
-
-               game.StarterGui:SetCore("SendNotification", {
-                  Title = "Auto Buy Food",
-                  Text = "Membeli " .. selectedFood .. " 🍎",
-                  Duration = 3
-               })
-
-               task.wait(45) -- delay 45 detik antar pembelian
-            end
-         end)
-      end
-   end,
+        if autoFood then
+            task.spawn(function()
+                warn("[AutoBuyFood] started loop")
+                while autoFood do
+                    local internalFood = toInternalFoodName(selectedFoodLabel)
+                    local remote = findRemote({"ResourceRE2", "BuyFood", "BuyFoodEvent", "FoodRemote", "Resource"})
+                    if not remote then
+                        warn("[AutoBuyFood] No RemoteEvent found. Available Remotes:")
+                        for _, d in ipairs(ReplicatedStorage:GetDescendants()) do
+                            if d:IsA("RemoteEvent") or d:IsA("RemoteFunction") then
+                                warn(" - ", d:GetFullName())
+                            end
+                        end
+                        task.wait(5)
+                    else
+                        warn("[AutoBuyFood] Using remote:", remote:GetFullName(), "-> buying", internalFood)
+                        pcall(function()
+                            if remote:IsA("RemoteEvent") then
+                                local ok = pcall(function()
+                                    remote:FireServer("BUY", "Food/"..internalFood)
+                                end)
+                                if not ok then
+                                    remote:FireServer(internalFood)
+                                end
+                            elseif remote:IsA("RemoteFunction") then
+                                pcall(function() remote:InvokeServer("BUY", "Food/"..internalFood) end)
+                            end
+                        end)
+                        pcall(function()
+                            starterGui:SetCore("SendNotification", {
+                                Title = "Auto Buy Food",
+                                Text = "Membeli "..selectedFoodLabel.." ("..internalFood..")",
+                                Duration = 3
+                            })
+                        end)
+                        task.wait(45)
+                    end
+                end
+                warn("[AutoBuyFood] stopped loop")
+            end)
+        else
+            warn("[AutoBuyFood] toggled off")
+        end
+    end,
 })
 
--------------------------------------------------------
--- 🧬 Dropdown Pilih Mutation
--------------------------------------------------------
+-- ===== Mutation dropdown (inline apply) =====
 MainTab:CreateDropdown({
-   Name = "Mutation Type",
-   Options = {"Jurassic", "Snow", "Halloween"},
-   CurrentOption = {"Jurassic"},
-   MultipleOptions = false,
-   Flag = "MutationDropdown",
-   Callback = function(Options)
-      local selectedMutation = Options[1]
-      local ReplicatedStorage = game:GetService("ReplicatedStorage")
-      local mutationEvent = ReplicatedStorage:FindFirstChild("Remote") and ReplicatedStorage.Remote:FindFirstChild("MutationRE")
-
-      if not mutationEvent then
-         warn("[Mutation] Event tidak ditemukan!")
-         return
-      end
-
-      pcall(function()
-         mutationEvent:FireServer("APPLY", selectedMutation)
-      end)
-
-      game.StarterGui:SetCore("SendNotification", {
-         Title = "Mutation Applied",
-         Text = "Mutation: " .. selectedMutation .. " 🧬",
-         Duration = 3
-      })
-   end,
+    Name = "Mutation Type",
+    Options = {"Jurassic", "Snow", "Halloween"},
+    CurrentOption = {"Jurassic"},
+    MultipleOptions = false,
+    Flag = "MutationDropdown",
+    Callback = function(Options)
+        local selectedMutation = Options[1]
+        local remote = findRemote({"MutationRE", "ApplyMutation", "MutationEvent", "MutationRemote"})
+        if not remote then
+            warn("[Mutation] remote not found. Check ReplicatedStorage for mutation remotes.")
+            return
+        end
+        pcall(function()
+            if remote:IsA("RemoteEvent") then
+                remote:FireServer("APPLY", selectedMutation)
+            else
+                remote:InvokeServer("APPLY", selectedMutation)
+            end
+        end)
+        starterGui:SetCore("SendNotification", {
+            Title = "Mutation",
+            Text = "Applied "..selectedMutation,
+            Duration = 3
+        })
+    end,
 })
+
+-- ===== End of auto-buy block =====
