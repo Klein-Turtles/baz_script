@@ -5,7 +5,7 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
    Name = "Zoo Crot Enak",
    Icon = 0,
-   LoadingTitle = "Rayfield Interface Suite",
+   LoadingTitle = "Crot Enak",
    LoadingSubtitle = "Aji Jembut",
    Theme = "Default",
    ToggleUIKeybind = "K",
@@ -85,7 +85,7 @@ MainTab:CreateToggle({
 
          game.StarterGui:SetCore("SendNotification", {
             Title = "Low Graphic Mode",
-            Text = "Activated ✅",
+            Text = "Crot",
             Duration = 3
          })
       else
@@ -112,7 +112,7 @@ MainTab:CreateToggle({
 
          game.StarterGui:SetCore("SendNotification", {
             Title = "Low Graphic Mode",
-            Text = "Deactivated ❌",
+            Text = "Ngga Crot",
             Duration = 3
          })
       end
@@ -130,7 +130,7 @@ local availableFoods = {
    "Pumpkin",
    "CandyCorn",
    "Durian",
-   "VoltGingko",
+   "VoltGinkgo",
    "ColossalPinecone"
 }
 
@@ -150,7 +150,7 @@ local FoodDropdown = MainTab:CreateDropdown({
    Callback = function(Options)
       SelectedFoods = Options
       game.StarterGui:SetCore("SendNotification", {
-         Title = "🍍 Food Selection Updated",
+         Title = " Food Selection Updated",
          Text = (#Options > 0 and "Dipilih: " .. table.concat(Options, ", ") or "Tidak ada buah dipilih"),
          Duration = 4
       })
@@ -169,8 +169,8 @@ MainTab:CreateToggle({
 
       if Value then
          game.StarterGui:SetCore("SendNotification", {
-            Title = "🍓 Auto Buy Food",
-            Text = "Dimulai! Membeli semua buah tiap 45 detik.",
+            Title = "Auto Buy Food",
+            Text = "Crot",
             Duration = 4
          })
 
@@ -186,12 +186,12 @@ MainTab:CreateToggle({
                   end
 
                   game.StarterGui:SetCore("SendNotification", {
-                     Title = "🍎 Membeli Batch Buah",
-                     Text = "Membeli: " .. table.concat(SelectedFoods, ", "),
+                     Title = " Membeli Batch Buah",
+                     Text = "Crot"),
                      Duration = 3
                   })
                else
-                  warn("[AutoBuyFood] Tidak ada buah yang dipilih.")
+                  warn("Crot")
                end
 
                -- Tunggu 45 detik sebelum batch berikutnya
@@ -203,7 +203,7 @@ MainTab:CreateToggle({
          end)
       else
          game.StarterGui:SetCore("SendNotification", {
-            Title = "🍇 Auto Buy Food",
+            Title = "Auto Buy Food",
             Text = "Berhenti.",
             Duration = 3
          })
