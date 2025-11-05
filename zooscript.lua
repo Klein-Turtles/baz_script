@@ -118,3 +118,61 @@ local Toggle = MainTab:CreateToggle({
       setLowGraphicMode(Value)
    end,
 })
+
+-- Misal di atas sudah ada Rayfield UI & MainTab definisi
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+-- Ganti dengan path yang benar di game kamu
+local buyEggEvent = ReplicatedStorage:WaitForChild("Remote"):WaitForChild("ResourceRE") -- contoh nama
+local buyFoodEvent = ReplicatedStorage:WaitForChild("Remote"):WaitForChild("ResourceRE2") -- contoh nama untuk food
+
+-- Fungsi untuk auto-buy telur
+local function autoBuyEgg(eggName)
+   if not buyEggEvent then
+      warn("Event beli telur tidak ditemukan!")
+      return
+   end
+   pcall(function()
+      buyEggEvent:FireServer("PULL", "Eggs/" .. eggName)
+   end)
+   print("[AutoBuyEgg] Membeli telur:", eggName)
+end
+
+-- Fungsi untuk auto-buy makanan
+local function autoBuyFood(foodName)
+   if not buyFoodEvent then
+      warn("Event beli food tidak ditemukan!")
+      return
+   end
+   pcall(function()
+      buyFoodEvent:FireServer("BUY", "Food/" .. foodName)
+   end)
+   print("[AutoBuyFood] Membeli makanan:", foodName)
+end
+
+-- Dropdown untuk memilih Telur
+local EggDropdown = MainTab:CreateDropdown({
+   Name = "Pilih Telur",
+   Options = {"Basic Egg", "Rare Egg", "Super Rare Egg", "Hyper Egg", "Void Egg", "Bowser Egg", "Shark Egg"},
+   CurrentOption = {"Basic Egg"},
+   MultipleOptions = false,
+   Flag = "EggDropdown",
+   Callback = function(Options)
+      local selectedEgg = Options[1]
+      autoBuyEgg(selectedEgg)
+   end,
+})
+
+-- Dropdown untuk memilih Makanan
+local FoodDropdown = MainTab:CreateDropdown({
+   Name = "Pilih Makanan",
+   Options = {"Banana", "Pineapple", "Gold Mango", "Deep Sea Pearl Fruit", "Colossal Pinecone"},
+   CurrentOption = {"Banana"},
+   MultipleOptions = false,
+   Flag = "FoodDropdown",
+   Callback = function(Options)
+      local selectedFood = Options[1]
+      autoBuyFood(selectedFood)
+   end,
+})
+
