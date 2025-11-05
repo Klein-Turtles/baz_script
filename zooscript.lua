@@ -158,26 +158,65 @@ local FoodDropdown = MainTab:CreateDropdown({
 })
 
 -------------------------------------------------------
+-- 🍉 AUTO BUY FOOD (MULTI SELECT, SEMUA SEKALIGUS SETIAP 45 DETIK)
+-------------------------------------------------------
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local FoodStoreRE = ReplicatedStorage:WaitForChild("Remote"):WaitForChild("FoodStoreRE")
+
+local availableFoods = {
+   "FrankenKiwi",
+   "Pumpkin",
+   "CandyCorn",
+   "Durian",
+   "VoltGingko",
+   "ColossalPinecone"
+}
+
+local SelectedFoods = {}
+local AutoBuyRunning = false
+local delayTime = 45
+
+-------------------------------------------------------
+-- 🍌 Dropdown Pilihan Buah
+-------------------------------------------------------
+local FoodDropdown = MainTab:CreateDropdown({
+   Name = "Select Foods to Auto Buy",
+   Options = availableFoods,
+   CurrentOption = {},
+   MultipleOptions = true, -- ✅ bisa pilih banyak
+   Flag = "FoodDropdown",
+   Callback = function(Options)
+      SelectedFoods = Options
+      game.StarterGui:SetCore("SendNotification", {
+         Title = "🍍 Food Selection Updated",
+         Text = (#Options > 0 and "Dipilih: " .. table.concat(Options, ", ") or "Tidak ada buah dipilih"),
+         Duration = 4
+      })
+   end,
+})
+
+-------------------------------------------------------
 -- 🍎 Toggle Auto Buy Loop
 -------------------------------------------------------
 MainTab:CreateToggle({
-   Name = "Auto Buy Selected Foods (45s)",
+   Name = "Auto Buy Selected Foods (Every 45s)",
    CurrentValue = false,
    Flag = "AutoBuyFoodToggle",
    Callback = function(Value)
-      _G.AutoBuyFoodEnabled = Value
+      AutoBuyRunning = Value
 
       if Value then
          game.StarterGui:SetCore("SendNotification", {
             Title = "🍓 Auto Buy Food",
-            Text = "Dimulai! Beli tiap 45 detik untuk semua buah terpilih.",
+            Text = "Dimulai! Membeli semua buah tiap 45 detik.",
             Duration = 4
          })
 
          task.spawn(function()
-            while _G.AutoBuyFoodEnabled do
-               if #_G.SelectedFoods > 0 then
-                  for _, food in ipairs(_G.SelectedFoods) do
+            while AutoBuyRunning do
+               if #SelectedFoods > 0 then
+                  print("[AutoBuyFood] Membeli batch buah:", table.concat(SelectedFoods, ", "))
+                  for _, food in ipairs(SelectedFoods) do
                      pcall(function()
                         FoodStoreRE:FireServer(food)
                      end)
@@ -185,17 +224,17 @@ MainTab:CreateToggle({
                   end
 
                   game.StarterGui:SetCore("SendNotification", {
-                     Title = "🍎 Membeli Buah",
-                     Text = "Membeli: " .. table.concat(_G.SelectedFoods, ", "),
-                     Duration = 4
+                     Title = "🍎 Membeli Batch Buah",
+                     Text = "Membeli: " .. table.concat(SelectedFoods, ", "),
+                     Duration = 3
                   })
                else
                   warn("[AutoBuyFood] Tidak ada buah yang dipilih.")
                end
 
-               -- Delay antar siklus pembelian
+               -- Tunggu 45 detik sebelum batch berikutnya
                for i = 1, delayTime do
-                  if not _G.AutoBuyFoodEnabled then break end
+                  if not AutoBuyRunning then break end
                   task.wait(1)
                end
             end
