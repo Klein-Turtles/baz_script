@@ -120,12 +120,14 @@ MainTab:CreateToggle({
 })
 
 -------------------------------------------------------
--- 🍓 Auto Buy Food (Fix)
+-- 🍓 Auto Buy Food (Final, sesuai log CharacterRE dump)
 -------------------------------------------------------
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local FoodStoreRE = ReplicatedStorage:WaitForChild("Remote"):WaitForChild("FoodStoreRE")
+local Players = game:GetService("Players")
 
-local foodList = {
+local FoodStoreRE = ReplicatedStorage:WaitForChild("Remote"):WaitForChild("FoodStoreRE")
+local delayTime = 45
+local foods = {
    "FrankenKiwi",
    "Pumpkin",
    "CandyCorn",
@@ -134,51 +136,50 @@ local foodList = {
    "ColossalPinecone"
 }
 
-local delayTime = 45
-_G.AutoBuyFoodActive = false
-_G.SelectedFood = foodList[1]
+_G.SelectedFood = foods[1]
+_G.AutoBuyFoodEnabled = false
 
--- Dropdown pilih makanan
+-- Dropdown untuk memilih jenis makanan
 MainTab:CreateDropdown({
-   Name = "Select Food Type",
-   Options = foodList,
-   CurrentOption = {"FrankenKiwi"},
+   Name = "Select Food",
+   Options = foods,
+   CurrentOption = {_G.SelectedFood},
    MultipleOptions = false,
-   Flag = "FoodTypeDropdown",
+   Flag = "FoodSelectDropdown",
    Callback = function(Options)
       _G.SelectedFood = Options[1]
       game.StarterGui:SetCore("SendNotification", {
-         Title = "Auto Buy Food",
-         Text = "🎯 Target makanan diubah ke: " .. _G.SelectedFood,
+         Title = "🍍 Auto Buy Food",
+         Text = "Target diubah ke: " .. _G.SelectedFood,
          Duration = 3
       })
    end,
 })
 
--- Toggle untuk mulai/berhenti auto buy
+-- Toggle untuk mulai atau berhenti auto buy
 MainTab:CreateToggle({
    Name = "Auto Buy Food",
    CurrentValue = false,
    Flag = "AutoBuyFoodToggle",
    Callback = function(Value)
-      _G.AutoBuyFoodActive = Value
+      _G.AutoBuyFoodEnabled = Value
 
       if Value then
          game.StarterGui:SetCore("SendNotification", {
-            Title = "Auto Buy Food",
-            Text = "🟢 Auto Buy diaktifkan untuk " .. _G.SelectedFood,
+            Title = "🍎 Auto Buy Food",
+            Text = "Auto Buy dimulai untuk " .. _G.SelectedFood,
             Duration = 3
          })
 
          task.spawn(function()
-            while _G.AutoBuyFoodActive do
+            while _G.AutoBuyFoodEnabled do
                pcall(function()
                   FoodStoreRE:FireServer(_G.SelectedFood)
                end)
 
                game.StarterGui:SetCore("SendNotification", {
-                  Title = "Auto Buy Food",
-                  Text = "🍎 Membeli " .. _G.SelectedFood,
+                  Title = "🍓 Auto Buy Food",
+                  Text = "Membeli " .. _G.SelectedFood,
                   Duration = 3
                })
 
@@ -187,8 +188,8 @@ MainTab:CreateToggle({
          end)
       else
          game.StarterGui:SetCore("SendNotification", {
-            Title = "Auto Buy Food",
-            Text = "🔴 Auto Buy dimatikan",
+            Title = "🍇 Auto Buy Food",
+            Text = "Auto Buy dimatikan",
             Duration = 3
          })
       end
