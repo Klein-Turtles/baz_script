@@ -25,6 +25,7 @@ MainTab:CreateSection("Feature")
 local function setLowGraphicMode(enable)
    local RunService = game:GetService("RunService")
    local SoundService = game:GetService("SoundService")
+   local Lighting = game:GetService("Lighting")
    local Players = game:GetService("Players")
    local player = Players.LocalPlayer
    if not player then return end
@@ -34,7 +35,7 @@ local function setLowGraphicMode(enable)
    if enable then
       print("[Low Graphic Mode] ENABLED")
 
-      -- 🖤 Buat overlay hitam
+      -- 🖤 Overlay hitam agar tampak seperti “no render”
       if not PlayerGui:FindFirstChild("LowGraphicOverlay") then
          local gui = Instance.new("ScreenGui")
          gui.Name = "LowGraphicOverlay"
@@ -62,13 +63,19 @@ local function setLowGraphicMode(enable)
          end
       end
 
-      -- Opsional: turunkan kualitas lighting
-      local Lighting = game:GetService("Lighting")
+      -- 🔦 Turunkan lighting
       pcall(function()
          Lighting.GlobalShadows = false
          Lighting.FogEnd = 200
          Lighting.Brightness = 1
       end)
+
+      -- 🔔 Notifikasi
+      game.StarterGui:SetCore("SendNotification", {
+         Title = "Low Graphic Mode",
+         Text = "Activated ✅",
+         Duration = 3
+      })
 
    else
       print("[Low Graphic Mode] DISABLED")
@@ -86,13 +93,17 @@ local function setLowGraphicMode(enable)
          end
       end
 
-      -- Kembalikan lighting
-      local Lighting = game:GetService("Lighting")
       pcall(function()
          Lighting.GlobalShadows = true
          Lighting.FogEnd = 100000
          Lighting.Brightness = 2
       end)
+
+      game.StarterGui:SetCore("SendNotification", {
+         Title = "Low Graphic Mode",
+         Text = "Deactivated ❌",
+         Duration = 3
+      })
    end
 end
 
@@ -104,35 +115,6 @@ local Toggle = MainTab:CreateToggle({
    CurrentValue = false,
    Flag = "LowGraphicToggle",
    Callback = function(Value)
-      -- Value = true → aktif
-      -- Value = false → nonaktif
       setLowGraphicMode(Value)
-   end,
-})
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-
-local Window = Rayfield:CreateWindow({
-   Name = "Zoo Crot Enak",
-   Icon = 0,
-   LoadingTitle = "Rayfield Interface Suite",
-   LoadingSubtitle = "Aji Jembut",
-   Theme = "Default",
-   ToggleUIKeybind = "K",
-   ConfigurationSaving = {Enabled = true, FileName = "Big Hub"}
-})
-
--- Buat Tab
-local MainTab = Window:CreateTab("Home", nil)
-
--- Tambah judul bagian
-MainTab:CreateSection("Feature")
-
--- Buat Toggle langsung di tab, bukan di section
-local Toggle = MainTab:CreateToggle({
-   Name = "Low Graphic Mode",
-   CurrentValue = false,
-   Flag = "LowGraphicToggle",
-   Callback = function(Value)
-      print("Low Graphic Mode:", Value)
    end,
 })
