@@ -5,7 +5,7 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
     Name = "Zoo Premium Hub",
     Icon = 0,
-    LoadingTitle = "Loading Script...",
+    LoadingTitle = "Loading Zoo Script...",
     LoadingSubtitle = "by Tegar",
     Theme = "Default",
     ToggleUIKeybind = "K",
@@ -18,7 +18,7 @@ local Window = Rayfield:CreateWindow({
 -- 📑 Tab Utama
 local MainTab = Window:CreateTab("Home", nil)
 
--- 📦 Services & Remotes
+-- 📦 Services & Remotes (Didefinisikan sekali di awal)
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local FoodStoreRE = ReplicatedStorage:WaitForChild("Remote"):WaitForChild("FoodStoreRE")
 local ProductBuyRF = ReplicatedStorage:WaitForChild("Remote"):WaitForChild("ProductBuyRF")
@@ -106,7 +106,7 @@ MainTab:CreateToggle({
 })
 
 -------------------------------------------------------
--- 🥚 Section: Premium Shop (DIBETULIN TOTAL)
+-- 🥚 Section: Celeste Egg Shop
 -------------------------------------------------------
 MainTab:CreateSection("Celeste Egg Multi-Buy")
 
@@ -114,11 +114,12 @@ MainTab:CreateSection("Celeste Egg Multi-Buy")
 MainTab:CreateButton({
     Name = "Buy Celeste Egg (x1)",
     Callback = function()
-        local args = { "CelesteEgg_x1" } -- Mengirim string x1
+        -- Catatan: Jika CelesteEgg_x1 tidak muncul, ganti string di bawah jadi "CelesteEgg"
+        local args = { "CelesteEgg_x1" }
         local success, err = pcall(function()
             ProductBuyRF:InvokeServer(unpack(args))
         end)
-        if success then print("Request x1 dikirim") else warn(err) end
+        if not success then warn("Error:", err) end
     end,
 })
 
@@ -126,12 +127,12 @@ MainTab:CreateButton({
 MainTab:CreateButton({
     Name = "Buy Celeste Egg (x3)",
     Callback = function()
-        -- Berdasarkan eksperimenmu, jika "CelesteEgg_x3" gagal, coba ganti jadi "CelesteEgg" saja
+        -- Catatan: Sesuai eksperimenmu, jika x3 gagal, ganti string jadi "CelesteEgg"
         local args = { "CelesteEgg_x3" } 
         local success, err = pcall(function()
             ProductBuyRF:InvokeServer(unpack(args))
         end)
-        if success then print("Request x3 dikirim") else warn(err) end
+        if not success then warn("Error:", err) end
     end,
 })
 
@@ -139,20 +140,42 @@ MainTab:CreateButton({
 MainTab:CreateButton({
     Name = "Buy Celeste Egg (x10)",
     Callback = function()
-        local args = { "CelesteEgg_x10" } -- Mengirim string x10
+        local args = { "CelesteEgg_x10" }
         local success, err = pcall(function()
             ProductBuyRF:InvokeServer(unpack(args))
         end)
-        if success then print("Request x10 dikirim") else warn(err) end
+        if not success then warn("Error:", err) end
     end,
 })
 
 -------------------------------------------------------
--- 🎉 Notifikasi
+-- 🔍 Section: Troubleshooting
+-------------------------------------------------------
+MainTab:CreateSection("Bantuan (Jika Tombol Gagal)")
+
+MainTab:CreateButton({
+    Name = "Mode Spy (Cek Nama Asli di F9)",
+    Callback = function()
+        Rayfield:Notify({Title = "Spy Aktif!", Content = "Klik tombol beli asli di Shop Game sekarang!", Duration = 5})
+        
+        local oldInvoke
+        oldInvoke = hookmetamethod(game, "__namecall", function(self, ...)
+            local args = {...}
+            if tostring(self) == "ProductBuyRF" and getnamecallmethod() == "InvokeServer" then
+                print("--- NAMA ITEM ASLI: " .. tostring(args[1]) .. " ---")
+                Rayfield:Notify({Title = "Item Ditemukan!", Content = tostring(args[1]), Duration = 10})
+            end
+            return oldInvoke(self, ...)
+        end)
+    end,
+})
+
+-------------------------------------------------------
+-- 🎉 Notifikasi Selesai
 -------------------------------------------------------
 Rayfield:Notify({
     Title = "Script Loaded",
-    Content = "Pilih jumlah pembelian Celeste Egg di menu.",
+    Content = "Tekan K untuk menyembunyikan menu.",
     Duration = 5,
     Image = 4483362458,
 })
