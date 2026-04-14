@@ -116,7 +116,7 @@ MainTab:CreateButton({
     Callback = function()
         local success, err = pcall(function()
             -- Sesuai eksperimenmu, "CelesteEgg" memicu x3
-            ProductBuyRF:InvokeServer("CelesteEgg_x10")
+            ProductBuyRF:InvokeServer("SiriusEgg_x1")
         end)
         if not success then warn("Error Celeste:", err) end
     end,
