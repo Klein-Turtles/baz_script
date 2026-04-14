@@ -122,16 +122,23 @@ MainTab:CreateButton({
 })
 
 -- Button 2: Princess Egg (DITAMBAHKAN DI BAWAHNYA)
-MainTab:CreateButton({
-   Name = "Buy Princess Egg x10",
-   Callback = function()
-      local success, err = pcall(function()
-         local remote = ReplicatedStorage:WaitForChild("Remote"):WaitForChild("ProductBuyRF")
-         remote:InvokeServer("PrincessEgg_x10")
-      end)
-      if not success then warn("Error Princess:", err) end
-   end,
-})
+local remote = game:GetService("ReplicatedStorage").Remote.ProductBuyRF
+local commonNames = {
+    "PrincessEgg_x10",
+    "Princess_Egg_x10",
+    "Princess_x10",
+    "Princess_Egg",
+    "PrincessEgg",
+    "EggPrincess_x10"
+}
+
+for _, name in pairs(commonNames) do
+    print("Mencoba nama: " .. name)
+    pcall(function()
+        remote:InvokeServer(name)
+    end)
+    task.wait(1) -- Jeda 1 detik biar nggak dianggap spam/kick
+end
 
 -- Button 3: Cyber Dragon (Contoh x1)
 MainTab:CreateButton({
