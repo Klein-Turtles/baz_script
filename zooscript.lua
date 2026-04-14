@@ -125,11 +125,11 @@ MainTab:CreateButton({
 
 -- Button 2: Princess Egg (DIPERBAIKI: Tidak jalan otomatis)
 MainTab:CreateButton({
-    Name = "Buy Princess Egg x10",
+    Name = "Buy Celeste egg x11",
     Callback = function()
         local success, err = pcall(function()
             -- Gunakan nama yang paling mungkin benar (pastikan hasil Scanner F9)
-            ProductBuyRF:InvokeServer("PrincessEgg_x10")
+            ProductBuyRF:InvokeServer("CelesteEgg_x10")
         end)
         if not success then warn("Error Princess:", err) end
     end,
