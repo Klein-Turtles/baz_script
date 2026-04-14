@@ -205,15 +205,18 @@ MainTab:CreateToggle({
 MainTab:CreateButton({
    Name = "Buy Neon Draconic Egg",
    Callback = function()
-      local MarketplaceService = game:GetService("MarketplaceService")
-      local Players = game:GetService("Players")
+      local success, err = pcall(function()
+         local MarketplaceService = game:GetService("MarketplaceService")
+         local Players = game:GetService("Players")
+         local player = Players.LocalPlayer
 
-      local player = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
+         print("Trigger purchase...", player)
 
-      if player then
          MarketplaceService:PromptProductPurchase(player, 3573226738)
-      else
-         warn("Player tidak ditemukan")
+      end)
+
+      if not success then
+         warn("ERROR:", err)
       end
    end,
 })
