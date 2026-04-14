@@ -259,3 +259,28 @@ MainTab:CreateButton({
       end
    end,
 })
+
+-- Tombol 1: Celeste Egg
+MainTab:CreateButton({
+   Name = "Buy Celeste Egg x10",
+   Callback = function()
+      local success, err = pcall(function()
+         local remote = game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("ProductBuyRF")
+         remote:InvokeServer("CelesteEgg_x10")
+      end)
+      if success then print("Request Celeste dikirim!") else warn(err) end
+   end,
+}) -- Pastikan ada koma di sini jika ada elemen lain di dalam tabel yang sama
+
+-- Tombol 2: Princess Egg
+MainTab:CreateButton({
+   Name = "Buy Princess Egg x10",
+   Callback = function()
+      local success, err = pcall(function()
+         local remote = game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("ProductBuyRF")
+         -- Sesuaikan argumen untuk Princess Egg
+         remote:InvokeServer("PrincessEgg_x10")
+      end)
+      if success then print("Request Princess dikirim!") else warn(err) end
+   end,
+})
