@@ -115,7 +115,7 @@ MainTab:CreateButton({
    Callback = function()
       local success, err = pcall(function()
          local remote = ReplicatedStorage:WaitForChild("Remote"):WaitForChild("ProductBuyRF")
-         remote:InvokeServer("CelesteEgg_x3")
+         remote:InvokeServer("CelesteEgg")
       end)
       if not success then warn("Error Celeste:", err) end
    end,
