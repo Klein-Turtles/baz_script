@@ -1,178 +1,92 @@
 -- 🧩 Load Rayfield UI
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
--- 🪟 Buat Window
 local Window = Rayfield:CreateWindow({
     Name = "Zoo Premium Hub",
-    Icon = 0,
-    LoadingTitle = "Loading Script...",
+    LoadingTitle = "Organizing Shop Tabs...",
     LoadingSubtitle = "by Tegar",
-    Theme = "Default",
-    ToggleUIKeybind = "K",
-    ConfigurationSaving = {
-        Enabled = true,
-        FileName = "ZooHubConfig"
-    }
+    ConfigurationSaving = {Enabled = false}
 })
 
--- 📑 Tab Utama
-local MainTab = Window:CreateTab("Home", nil)
+-- 📑 Definisi Tab
+local Tab1 = Window:CreateTab("Shop x1", nil)
+local Tab3 = Window:CreateTab("Shop x3", nil)
+local Tab10 = Window:CreateTab("Shop x10", nil)
 
 -- 📦 Services & Remotes
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local FoodStoreRE = ReplicatedStorage:WaitForChild("Remote"):WaitForChild("FoodStoreRE")
 local ProductBuyRF = ReplicatedStorage:WaitForChild("Remote"):WaitForChild("ProductBuyRF")
 
--------------------------------------------------------
--- 🎚️ Section: Utilities
--------------------------------------------------------
-MainTab:CreateSection("Graphics & Utilities")
+-- Fungsi Universal untuk Membeli
+local function buyItem(itemName, suffix)
+    local fullName = itemName .. suffix
+    local args = {
+        fullName, 
+        true,     
+        "ID"      
+    }
+    local success, err = pcall(function()
+        ProductBuyRF:InvokeServer(unpack(args))
+    end)
+    
+    if success then
+        Rayfield:Notify({Title = "Sent!", Content = "Request " .. fullName .. " dikirim.", Duration = 2})
+    else
+        warn("Gagal: " .. tostring(err))
+    end
+end
 
-local lowGraphicInitialized = false
-MainTab:CreateToggle({
-    Name = "Low Graphic Mode (Anti-Lag)",
-    CurrentValue = false,
-    Flag = "LowGraphicToggle",
-    Callback = function(Value)
-        if not lowGraphicInitialized then
-            lowGraphicInitialized = true
-            return
-        end
-
-        local RunService = game:GetService("RunService")
-        local SoundService = game:GetService("SoundService")
-        local player = game:GetService("Players").LocalPlayer
-        local PlayerGui = player:FindFirstChild("PlayerGui") or player:WaitForChild("PlayerGui", 5)
-
-        if Value then
-            if not PlayerGui:FindFirstChild("LowGraphicOverlay") then
-                local gui = Instance.new("ScreenGui", PlayerGui)
-                gui.Name = "LowGraphicOverlay"
-                gui.IgnoreGuiInset = true
-                local frame = Instance.new("Frame", gui)
-                frame.Size = UDim2.new(1, 0, 1, 0)
-                frame.BackgroundColor3 = Color3.new(0, 0, 0)
-                frame.BorderSizePixel = 0
-            end
-            pcall(function() RunService:Set3dRenderingEnabled(false) end)
-            pcall(function() SoundService.Volume = 0 end)
-        else
-            local overlay = PlayerGui:FindFirstChild("LowGraphicOverlay")
-            if overlay then overlay:Destroy() end
-            pcall(function() RunService:Set3dRenderingEnabled(true) end)
-            pcall(function() SoundService.Volume = 1 end)
-        end
-    end,
-})
+-- Daftar Item (Biar gampang diupdate)
+local eggList = {
+    {name = "Celeste Egg", id = "CelesteEgg"},
+    {name = "Fly Egg", id = "FlyEgg"},
+    {name = "Pink Unicorn Egg", id = "PinkUnicornEgg"},
+    {name = "Shadow King Egg", id = "ShadowKingEgg"},
+    {name = "Bumblebee Egg", id = "BumblebeeEgg"},
+    {name = "Fiery Dragon Egg", id = "FieryDragonEgg"},
+    {name = "Ancient Egg", id = "AncientEgg"},
+    {name = "Sea Dragon Egg", id = "SeaDragonEgg"},
+    {name = "Flower Whale Egg", id = "FlowerWhaleEgg"}
+}
 
 -------------------------------------------------------
--- 🍎 Section: Auto Buy Food
+-- 🛒 TAB 1: SHOP x1
 -------------------------------------------------------
-MainTab:CreateSection("Auto Farming")
-
-local SelectedFoods = {}
-local AutoBuyRunning = false
-
-MainTab:CreateDropdown({
-    Name = "Select Foods to Auto Buy",
-    Options = {"FrankenKiwi", "Pumpkin", "CandyCorn", "Durian", "VoltGinkgo", "ColossalPinecone"},
-    CurrentOption = {},
-    MultipleOptions = true,
-    Flag = "FoodDropdown",
-    Callback = function(Options)
-        SelectedFoods = Options
-    end,
-})
-
-MainTab:CreateToggle({
-    Name = "Auto Buy Selected Foods (45s)",
-    CurrentValue = false,
-    Flag = "AutoBuyFoodToggle",
-    Callback = function(Value)
-        AutoBuyRunning = Value
-        if Value then
-            task.spawn(function()
-                while AutoBuyRunning do
-                    if #SelectedFoods > 0 then
-                        for _, food in ipairs(SelectedFoods) do
-                            pcall(function() FoodStoreRE:FireServer(food) end)
-                        end
-                    end
-                    task.wait(45)
-                end
-            end)
-        end
-    end,
-})
+Tab1:CreateSection("Single Purchase (x1)")
+for _, egg in ipairs(eggList) do
+    Tab1:CreateButton({
+        Name = "Buy " .. egg.name .. " x1",
+        Callback = function() buyItem(egg.id, "_x1") end, -- Pakai _x1 atau kosongkan jika x1 tanpa suffix
+    })
+end
 
 -------------------------------------------------------
--- 🥚 Section: Premium Shop (DIBETULIN TOTAL)
+-- 🛒 TAB 3: SHOP x3
 -------------------------------------------------------
-MainTab:CreateSection("Premium Eggs")
-
--- Button 1: Celeste Egg
-MainTab:CreateButton({
-    Name = "Buy Celeste Egg (x3 Mode)",
-    Callback = function()
-        local success, err = pcall(function()
-            -- Sesuai eksperimenmu, "CelesteEgg" memicu x3
-            ProductBuyRF:InvokeServer("CelesteEgg")
-            ProductBuyRF:InvokeServer("CelesteEgg_x3")
-        end)
-        if not success then warn("Error Celeste:", err) end
-    end,
-})
-
--- Button 2: Princess Egg (DIPERBAIKI: Tidak jalan otomatis)
-MainTab:CreateButton({
-    Name = "Buy Celeste egg x1 juta",
-    Callback = function()
-        local success, err = pcall(function()
-            -- Gunakan nama yang paling mungkin benar (pastikan hasil Scanner F9)
-            ProductBuyRF:InvokeServer("CelesteEgg_x10")
-        end)
-        if not success then warn("Error Princess:", err) end
-    end,
-})
-
--- Button 3: Cyber Dragon
-MainTab:CreateButton({
-    Name = "Buy Cyber Dragon x1",
-    Callback = function()
-        local success, err = pcall(function()
-            ProductBuyRF:InvokeServer("CelesteEgg_x1")
-        end)
-        if not success then warn("Error Cyber:", err) end
-    end,
-})
-
--- Tombol Tambahan: Scanner Otomatis (Buat nyari nama asli item)
-MainTab:CreateButton({
-    Name = "Scan Item Names (Lihat di F9)",
-    Callback = function()
-        Rayfield:Notify({Title = "Scanning...", Content = "Cek Console (F9) untuk hasil", Duration = 3})
-        for _, v in pairs(game:GetDescendants()) do
-            if v:IsA("ModuleScript") then
-                local s, data = pcall(function() return require(v) end)
-                if s and type(data) == "table" then
-                    for i, _ in pairs(data) do
-                        local n = tostring(i)
-                        if n:find("Egg") or n:find("Princess") or n:find("Celeste") then
-                            print("Ditemukan di " .. v.Name .. " -> Nama: " .. n)
-                        end
-                    end
-                end
-            end
-        end
-    end,
-})
+Tab3:CreateSection("Triple Purchase (x3)")
+for _, egg in ipairs(eggList) do
+    Tab3:CreateButton({
+        Name = "Buy " .. egg.name .. " x3",
+        Callback = function() buyItem(egg.id, "_x3") end,
+    })
+end
 
 -------------------------------------------------------
--- 🎉 Notifikasi Selesai
+-- 🛒 TAB 10: SHOP x10
+-------------------------------------------------------
+Tab10:CreateSection("Mega Purchase (x10)")
+for _, egg in ipairs(eggList) do
+    Tab10:CreateButton({
+        Name = "Buy " .. egg.name .. " x10",
+        Callback = function() buyItem(egg.id, "_x10") end,
+    })
+end
+
+-------------------------------------------------------
+-- 🎉 Notifikasi
 -------------------------------------------------------
 Rayfield:Notify({
-    Title = "Script Loaded",
-    Content = "Ready to use! Press K to Toggle UI.",
-    Duration = 5,
-    Image = 4483362458,
+    Title = "Multi-Tab Loaded",
+    Content = "Pilih jumlah pembelian di tab yang sesuai!",
+    Duration = 5
 })
