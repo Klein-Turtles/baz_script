@@ -201,3 +201,13 @@ MainTab:CreateToggle({
       end
    end,
 })
+
+MainTab:CreateButton({
+   Name = "Buy Neon Draconic Egg",
+   Callback = function()
+      local MarketplaceService = game:GetService("MarketplaceService")
+      local player = game.Players.LocalPlayer
+      
+      MarketplaceService:PromptProductPurchase(player, 8066283370)
+   end,
+})
