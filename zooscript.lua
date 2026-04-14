@@ -140,7 +140,7 @@ MainTab:CreateButton({
     Name = "Buy Cyber Dragon x1",
     Callback = function()
         local success, err = pcall(function()
-            ProductBuyRF:InvokeServer("CyberDragonEgg_x1")
+            ProductBuyRF:InvokeServer("CelesteEgg_x1")
         end)
         if not success then warn("Error Cyber:", err) end
     end,
