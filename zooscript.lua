@@ -108,70 +108,52 @@ MainTab:CreateToggle({
 -------------------------------------------------------
 -- 🥚 Section: Premium Shop (DIBETULIN TOTAL)
 -------------------------------------------------------
-MainTab:CreateSection("Premium Eggs")
+MainTab:CreateSection("Celeste Egg Multi-Buy")
 
--- Button 1: Celeste Egg
+-- Tombol Beli x1
 MainTab:CreateButton({
-    Name = "Buy Celeste Egg (x3 Mode)",
+    Name = "Buy Celeste Egg (x1)",
     Callback = function()
+        local args = { "CelesteEgg_x1" } -- Mengirim string x1
         local success, err = pcall(function()
-            -- Sesuai eksperimenmu, "CelesteEgg" memicu x3
-            ProductBuyRF:InvokeServer("CelesteEgg")
+            ProductBuyRF:InvokeServer(unpack(args))
         end)
-        if not success then warn("Error Celeste:", err) end
+        if success then print("Request x1 dikirim") else warn(err) end
     end,
 })
 
--- Button 2: Princess Egg (DIPERBAIKI: Tidak jalan otomatis)
+-- Tombol Beli x3
 MainTab:CreateButton({
-    Name = "Buy Sirius Egg x10",
+    Name = "Buy Celeste Egg (x3)",
     Callback = function()
+        -- Berdasarkan eksperimenmu, jika "CelesteEgg_x3" gagal, coba ganti jadi "CelesteEgg" saja
+        local args = { "CelesteEgg_x3" } 
         local success, err = pcall(function()
-            -- Gunakan nama yang paling mungkin benar (pastikan hasil Scanner F9)
-            ProductBuyRF:InvokeServer("SiriusEgg_x1")
+            ProductBuyRF:InvokeServer(unpack(args))
         end)
-        if not success then warn("Error Princess:", err) end
+        if success then print("Request x3 dikirim") else warn(err) end
     end,
 })
 
--- Button 3: Cyber Dragon
+-- Tombol Beli x10
 MainTab:CreateButton({
-    Name = "Buy Cyber Dragon x1",
+    Name = "Buy Celeste Egg (x10)",
     Callback = function()
+        local args = { "CelesteEgg_x10" } -- Mengirim string x10
         local success, err = pcall(function()
-            ProductBuyRF:InvokeServer("CyberDragonEgg_x1")
+            ProductBuyRF:InvokeServer(unpack(args))
         end)
-        if not success then warn("Error Cyber:", err) end
-    end,
-})
-
--- Tombol Tambahan: Scanner Otomatis (Buat nyari nama asli item)
-MainTab:CreateButton({
-    Name = "Scan Item Names (Lihat di F9)",
-    Callback = function()
-        Rayfield:Notify({Title = "Scanning...", Content = "Cek Console (F9) untuk hasil", Duration = 3})
-        for _, v in pairs(game:GetDescendants()) do
-            if v:IsA("ModuleScript") then
-                local s, data = pcall(function() return require(v) end)
-                if s and type(data) == "table" then
-                    for i, _ in pairs(data) do
-                        local n = tostring(i)
-                        if n:find("Egg") or n:find("Princess") or n:find("Celeste") then
-                            print("Ditemukan di " .. v.Name .. " -> Nama: " .. n)
-                        end
-                    end
-                end
-            end
-        end
+        if success then print("Request x10 dikirim") else warn(err) end
     end,
 })
 
 -------------------------------------------------------
--- 🎉 Notifikasi Selesai
+-- 🎉 Notifikasi
 -------------------------------------------------------
 Rayfield:Notify({
     Title = "Script Loaded",
-    Content = "Ready to use! Press K to Toggle UI.",
+    Content = "Pilih jumlah pembelian Celeste Egg di menu.",
     Duration = 5,
     Image = 4483362458,
 })
+Catatan Bedah Logika:
