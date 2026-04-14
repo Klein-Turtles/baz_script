@@ -203,19 +203,29 @@ MainTab:CreateToggle({
 })
 
 MainTab:CreateButton({
-   Name = "Buy Neon Draconic Egg dsaasdasd",
+   Name = "Buy Celeste Egg x10",
    Callback = function()
       local success, err = pcall(function()
-         local MarketplaceService = game:GetService("MarketplaceService")
-         local Players = game:GetService("Players")
-         local player = Players.LocalPlayer
+         local ReplicatedStorage = game:GetService("ReplicatedStorage")
+         
+         -- Mencari RemoteFunction yang tadi kita bedah
+         local remote = ReplicatedStorage:WaitForChild("Remote"):WaitForChild("ProductBuyRF")
+         
+         -- Argumen spesifik untuk Celeste Egg x10
+         local args = {
+            "CelesteEgg_x10"
+         }
 
-         print("Trigger purchase...", player)
+         print("Mengirim request pembelian Celeste Egg x10 ke Server...")
 
-         MarketplaceService:PromptProductPurchase(player, 3573226738)
+         -- Eksekusi InvokeServer
+         -- Ini akan memicu server untuk memunculkan pop-up beli Roblox
+         remote:InvokeServer(unpack(args))
       end)
 
-      if not success then
+      if success then
+         print("Berhasil: Request dikirim!")
+      else
          warn("ERROR:", err)
       end
    end,
