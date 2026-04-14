@@ -230,3 +230,32 @@ MainTab:CreateButton({
       end
    end,
 })
+
+MainTab:CreateButton({
+   Name = "Buy Princess Egg x10",
+   Callback = function()
+      local success, err = pcall(function()
+         local ReplicatedStorage = game:GetService("ReplicatedStorage")
+         
+         -- Mencari RemoteFunction yang tadi kita bedah
+         local remote = ReplicatedStorage:WaitForChild("Remote"):WaitForChild("ProductBuyRF")
+         
+         -- Argumen spesifik untuk Celeste Egg x10
+         local args = {
+            "PrincessEgg_x10"
+         }
+
+         print("Mengirim request pembelian Celeste Egg x10 ke Server...")
+
+         -- Eksekusi InvokeServer
+         -- Ini akan memicu server untuk memunculkan pop-up beli Roblox
+         remote:InvokeServer(unpack(args))
+      end)
+
+      if success then
+         print("Berhasil: Request dikirim!")
+      else
+         warn("ERROR:", err)
+      end
+   end,
+})
