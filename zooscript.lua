@@ -206,8 +206,14 @@ MainTab:CreateButton({
    Name = "Buy Neon Draconic Egg",
    Callback = function()
       local MarketplaceService = game:GetService("MarketplaceService")
-      local player = game.Players.LocalPlayer
-      
-      MarketplaceService:PromptProductPurchase(player, 8066283370)
+      local Players = game:GetService("Players")
+
+      local player = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
+
+      if player then
+         MarketplaceService:PromptProductPurchase(player, 3573226738)
+      else
+         warn("Player tidak ditemukan")
+      end
    end,
 })
