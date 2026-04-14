@@ -156,4 +156,3 @@ Rayfield:Notify({
     Duration = 5,
     Image = 4483362458,
 })
-Catatan Bedah Logika:
