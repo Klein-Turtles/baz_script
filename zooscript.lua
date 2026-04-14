@@ -116,7 +116,7 @@ MainTab:CreateButton({
     Callback = function()
         local success, err = pcall(function()
             -- Sesuai eksperimenmu, "CelesteEgg" memicu x3
-            ProductBuyRF:InvokeServer("SiriusEgg_x1")
+            ProductBuyRF:InvokeServer("Celeste_x3")
         end)
         if not success then warn("Error Celeste:", err) end
     end,
@@ -124,11 +124,11 @@ MainTab:CreateButton({
 
 -- Button 2: Princess Egg (DIPERBAIKI: Tidak jalan otomatis)
 MainTab:CreateButton({
-    Name = "Buy Princess Egg x10",
+    Name = "Buy Sirius Egg x10",
     Callback = function()
         local success, err = pcall(function()
             -- Gunakan nama yang paling mungkin benar (pastikan hasil Scanner F9)
-            ProductBuyRF:InvokeServer("PrincessEgg_x10")
+            ProductBuyRF:InvokeServer("SiriusEgg_x1")
         end)
         if not success then warn("Error Princess:", err) end
     end,
