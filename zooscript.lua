@@ -15,15 +15,15 @@ local Window = Rayfield:CreateWindow({
    }
 })
 
--- 📑 Tab utama
+-- 📑 Tab Utama
 local MainTab = Window:CreateTab("Home", nil)
-MainTab:CreateSection("Feature")
 
 -------------------------------------------------------
--- 🎚️ Toggle: Low Graphic Mode
+-- 🎚️ Feature Section
 -------------------------------------------------------
+MainTab:CreateSection("Graphics & Utilities")
+
 local lowGraphicInitialized = false
-
 MainTab:CreateToggle({
    Name = "Low Graphic Mode",
    CurrentValue = false,
@@ -37,250 +37,117 @@ MainTab:CreateToggle({
       local RunService = game:GetService("RunService")
       local SoundService = game:GetService("SoundService")
       local Lighting = game:GetService("Lighting")
-      local Players = game:GetService("Players")
-      local player = Players.LocalPlayer
+      local player = game:GetService("Players").LocalPlayer
       if not player then return end
       local PlayerGui = player:FindFirstChild("PlayerGui") or player:WaitForChild("PlayerGui", 5)
 
       if Value then
-         print("[Low Graphic Mode] ENABLED")
-
          if not PlayerGui:FindFirstChild("LowGraphicOverlay") then
-            local gui = Instance.new("ScreenGui")
+            local gui = Instance.new("ScreenGui", PlayerGui)
             gui.Name = "LowGraphicOverlay"
             gui.IgnoreGuiInset = true
-            gui.ResetOnSpawn = false
-            gui.DisplayOrder = 9999
-
-            local frame = Instance.new("Frame")
+            local frame = Instance.new("Frame", gui)
             frame.Size = UDim2.new(1, 0, 1, 0)
             frame.BackgroundColor3 = Color3.new(0, 0, 0)
             frame.BorderSizePixel = 0
-            frame.Parent = gui
-            gui.Parent = PlayerGui
          end
-
          pcall(function() RunService:Set3dRenderingEnabled(false) end)
          pcall(function() SoundService.Volume = 0 end)
-
-         for _, obj in ipairs(workspace:GetDescendants()) do
-            if obj:IsA("ParticleEmitter") or obj:IsA("Beam") or obj:IsA("Trail") then
-               pcall(function() obj.Enabled = false end)
-            end
-         end
-
-         pcall(function()
-            Lighting.GlobalShadows = false
-            Lighting.FogEnd = 200
-            Lighting.Brightness = 1
-         end)
-
-         game.StarterGui:SetCore("SendNotification", {
-            Title = "Low Graphic Mode",
-            Text = "Crot",
-            Duration = 3
-         })
       else
-         print("[Low Graphic Mode] DISABLED")
-
          local overlay = PlayerGui:FindFirstChild("LowGraphicOverlay")
          if overlay then overlay:Destroy() end
-
          pcall(function() RunService:Set3dRenderingEnabled(true) end)
          pcall(function() SoundService.Volume = 1 end)
-
-         for _, obj in ipairs(workspace:GetDescendants()) do
-            if obj:IsA("ParticleEmitter") or obj:IsA("Beam") or obj:IsA("Trail") then
-               pcall(function() obj.Enabled = true end)
-            end
-         end
-
-         pcall(function()
-            Lighting.GlobalShadows = true
-            Lighting.FogEnd = 100000
-            Lighting.Brightness = 2
-         end)
-
-         game.StarterGui:SetCore("SendNotification", {
-            Title = "Low Graphic Mode",
-            Text = "Ngga Crot",
-            Duration = 3
-         })
       end
    end,
 })
 
 -------------------------------------------------------
--- 🍉 AUTO BUY FOOD (MULTI SELECT, SEMUA SEKALIGUS SETIAP 45 DETIK)
+-- 🍎 Auto Buy Food Section
 -------------------------------------------------------
+MainTab:CreateSection("Auto Farming")
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local FoodStoreRE = ReplicatedStorage:WaitForChild("Remote"):WaitForChild("FoodStoreRE")
-
-local availableFoods = {
-   "FrankenKiwi",
-   "Pumpkin",
-   "CandyCorn",
-   "Durian",
-   "VoltGinkgo",
-   "ColossalPinecone"
-}
-
 local SelectedFoods = {}
 local AutoBuyRunning = false
-local delayTime = 45
 
--------------------------------------------------------
--- 🍌 Dropdown Pilihan Buah
--------------------------------------------------------
-local FoodDropdown = MainTab:CreateDropdown({
+MainTab:CreateDropdown({
    Name = "Select Foods to Auto Buy",
-   Options = availableFoods,
+   Options = {"FrankenKiwi", "Pumpkin", "CandyCorn", "Durian", "VoltGinkgo", "ColossalPinecone"},
    CurrentOption = {},
    MultipleOptions = true,
    Flag = "FoodDropdown",
    Callback = function(Options)
       SelectedFoods = Options
-      game.StarterGui:SetCore("SendNotification", {
-         Title = "🍍 Food Selection Updated",
-         Text = (#Options > 0 and "Dipilih: " .. table.concat(Options, ", ") or "Tidak ada buah dipilih"),
-         Duration = 4
-      })
    end,
 })
 
--------------------------------------------------------
--- 🍎 Toggle Auto Buy Loop
--------------------------------------------------------
 MainTab:CreateToggle({
-   Name = "Auto Buy Selected Foods (Every 45s)",
+   Name = "Auto Buy Selected Foods (45s)",
    CurrentValue = false,
    Flag = "AutoBuyFoodToggle",
    Callback = function(Value)
       AutoBuyRunning = Value
-
       if Value then
-         game.StarterGui:SetCore("SendNotification", {
-            Title = "🍓 Auto Buy Food",
-            Text = "Crot",
-            Duration = 4
-         })
-
          task.spawn(function()
             while AutoBuyRunning do
                if #SelectedFoods > 0 then
-                  print("[AutoBuyFood] Membeli batch buah:", table.concat(SelectedFoods, ", "))
                   for _, food in ipairs(SelectedFoods) do
-                     pcall(function()
-                        FoodStoreRE:FireServer(food)
-                     end)
-                     print("[AutoBuyFood] Membeli:", food)
+                     pcall(function() FoodStoreRE:FireServer(food) end)
                   end
-
-                  game.StarterGui:SetCore("SendNotification", {
-                     Title = "🍎 Membeli Batch Buah",
-                     Text = "Crot",
-                     Duration = 3
-                  })
-               else
-                  warn("[AutoBuyFood] Tidak ada buah yang dipilih.")
                end
-
-               -- Tunggu 45 detik sebelum batch berikutnya
-               for i = 1, delayTime do
-                  if not AutoBuyRunning then break end
-                  task.wait(1)
-               end
+               task.wait(45)
             end
          end)
-      else
-         game.StarterGui:SetCore("SendNotification", {
-            Title = "🍇 Auto Buy Food",
-            Text = "Berhenti.",
-            Duration = 3
-         })
       end
    end,
 })
 
+-------------------------------------------------------
+-- 🥚 Shop / Eggs Section (DIBETULIN DI SINI)
+-------------------------------------------------------
+MainTab:CreateSection("Premium Eggs")
+
+-- Button 1: Celeste Egg
 MainTab:CreateButton({
    Name = "Buy Celeste Egg x10",
    Callback = function()
       local success, err = pcall(function()
-         local ReplicatedStorage = game:GetService("ReplicatedStorage")
-         
-         -- Mencari RemoteFunction yang tadi kita bedah
          local remote = ReplicatedStorage:WaitForChild("Remote"):WaitForChild("ProductBuyRF")
-         
-         -- Argumen spesifik untuk Celeste Egg x10
-         local args = {
-            "CelesteEgg_x10"
-         }
-
-         print("Mengirim request pembelian Celeste Egg x10 ke Server...")
-
-         -- Eksekusi InvokeServer
-         -- Ini akan memicu server untuk memunculkan pop-up beli Roblox
-         remote:InvokeServer(unpack(args))
-      end)
-
-      if success then
-         print("Berhasil: Request dikirim!")
-      else
-         warn("ERROR:", err)
-      end
-   end,
-})
-
-MainTab:CreateButton({
-   Name = "Buy Princess Egg x10",
-   Callback = function()
-      local success, err = pcall(function()
-         local ReplicatedStorage = game:GetService("ReplicatedStorage")
-         
-         -- Mencari RemoteFunction yang tadi kita bedah
-         local remote = ReplicatedStorage:WaitForChild("Remote"):WaitForChild("ProductBuyRF")
-         
-         -- Argumen spesifik untuk Celeste Egg x10
-         local args = {
-            "PrincessEgg_x10"
-         }
-
-         print("Mengirim request pembelian Celeste Egg x10 ke Server...")
-
-         -- Eksekusi InvokeServer
-         -- Ini akan memicu server untuk memunculkan pop-up beli Roblox
-         remote:InvokeServer(unpack(args))
-      end)
-
-      if success then
-         print("Berhasil: Request dikirim!")
-      else
-         warn("ERROR:", err)
-      end
-   end,
-})
-
--- Tombol 1: Celeste Egg
-MainTab:CreateButton({
-   Name = "Buy Celeste Egg x10",
-   Callback = function()
-      local success, err = pcall(function()
-         local remote = game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("ProductBuyRF")
          remote:InvokeServer("CelesteEgg_x10")
       end)
-      if success then print("Request Celeste dikirim!") else warn(err) end
+      if not success then warn("Error Celeste:", err) end
    end,
-}) -- Pastikan ada koma di sini jika ada elemen lain di dalam tabel yang sama
+})
 
--- Tombol 2: Princess Egg
+-- Button 2: Princess Egg (DITAMBAHKAN DI BAWAHNYA)
 MainTab:CreateButton({
    Name = "Buy Princess Egg x10",
    Callback = function()
       local success, err = pcall(function()
-         local remote = game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("ProductBuyRF")
-         -- Sesuaikan argumen untuk Princess Egg
+         local remote = ReplicatedStorage:WaitForChild("Remote"):WaitForChild("ProductBuyRF")
          remote:InvokeServer("PrincessEgg_x10")
       end)
-      if success then print("Request Princess dikirim!") else warn(err) end
+      if not success then warn("Error Princess:", err) end
    end,
+})
+
+-- Button 3: Cyber Dragon (Contoh x1)
+MainTab:CreateButton({
+   Name = "Buy Cyber Dragon x1",
+   Callback = function()
+      local success, err = pcall(function()
+         local remote = ReplicatedStorage:WaitForChild("Remote"):WaitForChild("ProductBuyRF")
+         remote:InvokeServer("CyberDragonEgg_x1")
+      end)
+      if not success then warn("Error Cyber:", err) end
+   end,
+})
+
+Rayfield:Notify({
+   Title = "Script Loaded",
+   Content = "Ready to Crot!",
+   Duration = 5,
+   Image = 4483362458,
 })
