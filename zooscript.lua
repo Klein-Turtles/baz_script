@@ -213,7 +213,7 @@ MainTab:CreateButton({
          
          -- Argumen spesifik untuk Celeste Egg x10
          local args = {
-            "PrincessEgg_x10"
+            "CelesteEgg_x1"
          }
 
          print("Mengirim request pembelian Celeste Egg x10 ke Server...")
