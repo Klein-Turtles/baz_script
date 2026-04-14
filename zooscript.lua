@@ -125,7 +125,7 @@ MainTab:CreateButton({
 
 -- Button 2: Princess Egg (DIPERBAIKI: Tidak jalan otomatis)
 MainTab:CreateButton({
-    Name = "Buy Celeste egg x11",
+    Name = "Buy Celeste egg x1 juta",
     Callback = function()
         local success, err = pcall(function()
             -- Gunakan nama yang paling mungkin benar (pastikan hasil Scanner F9)
