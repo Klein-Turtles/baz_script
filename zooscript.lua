@@ -47,7 +47,8 @@ local eggList = {
     {name = "Ancient Egg", id = "AncientEgg"},
     {name = "Sea Dragon Egg", id = "SeaDragonEgg"},
     {name = "Flower Whale Egg", id = "FlowerWhaleEgg"},
-    {name = "Pegasus Egg", id = "PegasusEgg"}
+    {name = "Pegasus Egg", id = "PegasusEgg"},
+    {name = "Sirius Egg", id = "SiriusEgg"}
 }
 
 -------------------------------------------------------
