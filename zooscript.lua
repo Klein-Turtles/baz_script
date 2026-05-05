@@ -12,6 +12,7 @@ local Window = Rayfield:CreateWindow({
 local Tab1 = Window:CreateTab("Shop x1", nil)
 local Tab3 = Window:CreateTab("Shop x3", nil)
 local Tab10 = Window:CreateTab("Shop x10", nil)
+local TabUnit = Window:CreateTab("Unit Shop", nil) -- Tab Baru
 
 -- 📦 Services & Remotes
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -36,7 +37,7 @@ local function buyItem(itemName, suffix)
     end
 end
 
--- Daftar Item (Biar gampang diupdate)
+-- Daftar Item Egg
 local eggList = {
     {name = "Celeste Egg", id = "CelesteEgg"},
     {name = "Fly Egg", id = "FlyEgg"},
@@ -51,6 +52,11 @@ local eggList = {
     {name = "Sirius Egg", id = "SiriusEgg"}
 }
 
+-- Daftar Unit (Gampang buat lu tambah lagi nanti)
+local unitList = {
+    {name = "Christmas Penguin", id = "penguin_christmas"}
+}
+
 -------------------------------------------------------
 -- 🛒 TAB 1: SHOP x1
 -------------------------------------------------------
@@ -58,7 +64,7 @@ Tab1:CreateSection("Single Purchase (x1)")
 for _, egg in ipairs(eggList) do
     Tab1:CreateButton({
         Name = "Buy " .. egg.name .. " x1",
-        Callback = function() buyItem(egg.id, "_x1") end, -- Pakai _x1 atau kosongkan jika x1 tanpa suffix
+        Callback = function() buyItem(egg.id, "_x1") end,
     })
 end
 
@@ -85,10 +91,21 @@ for _, egg in ipairs(eggList) do
 end
 
 -------------------------------------------------------
+-- 🛒 TAB UNIT: UNIT SHOP
+-------------------------------------------------------
+TabUnit:CreateSection("Direct Unit Purchase")
+for _, unit in ipairs(unitList) do
+    TabUnit:CreateButton({
+        Name = "Buy " .. unit.name,
+        Callback = function() buyItem(unit.id, "") end, -- Unit biasanya gak pake suffix _x1
+    })
+end
+
+-------------------------------------------------------
 -- 🎉 Notifikasi
 -------------------------------------------------------
 Rayfield:Notify({
     Title = "Multi-Tab Loaded",
-    Content = "Pilih jumlah pembelian di tab yang sesuai!",
+    Content = "Tab Unit Shop sudah siap, Gar!",
     Duration = 5
 })
