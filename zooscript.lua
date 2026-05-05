@@ -54,7 +54,7 @@ local eggList = {
 
 -- Daftar Unit (Gampang buat lu tambah lagi nanti)
 local unitList = {
-    {name = "Christmas Penguin", id = "penguin_christmas"}
+    {name = "Christmas Penguin", id = "Penguin_Christmas"}
 }
 
 -------------------------------------------------------
