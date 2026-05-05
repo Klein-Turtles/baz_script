@@ -2,7 +2,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-    Name = "Zoo Premium Hub",
+    Name = "Jatu Kece",
     LoadingTitle = "Organizing Shop Tabs...",
     LoadingSubtitle = "by Tegar",
     ConfigurationSaving = {Enabled = false}
@@ -12,32 +12,44 @@ local Window = Rayfield:CreateWindow({
 local Tab1 = Window:CreateTab("Shop x1", nil)
 local Tab3 = Window:CreateTab("Shop x3", nil)
 local Tab10 = Window:CreateTab("Shop x10", nil)
-local TabUnit = Window:CreateTab("Unit Shop", nil) -- Tab Baru
+local TabUnit = Window:CreateTab("Unit Shop", nil)
 
 -- 📦 Services & Remotes
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Player = game.Players.LocalPlayer
+
+-- Requirement buat ProductUtil (Sesuaikan path Shared lu kalau error)
+local Shared = require(ReplicatedStorage:WaitForChild("Shared"))
+local ProductUtil = Shared("GameProductUtility")
+
+-- Remote lama buat Egg
 local ProductBuyRF = ReplicatedStorage:WaitForChild("Remote"):WaitForChild("ProductBuyRF")
 
--- Fungsi Universal untuk Membeli
-local function buyItem(itemName, suffix)
+-- [Fungsi A] Untuk Egg (Jalur RemoteFunction)
+local function buyEgg(itemName, suffix)
     local fullName = itemName .. suffix
-    local args = {
-        fullName, 
-        true,     
-        "ID"      
-    }
-    local success, err = pcall(function()
+    local args = {fullName, true, "ID"}
+    pcall(function()
         ProductBuyRF:InvokeServer(unpack(args))
+    end)
+    Rayfield:Notify({Title = "Egg Request Sent", Content = fullName, Duration = 2})
+end
+
+-- [Fungsi B] Untuk Unit/Pet (Jalur ProductUtil Pcall)
+local function buyUnitWithProductUtil(id)
+    local success, err = pcall(function()
+        -- Nembak langsung ke utilitas produk game
+        ProductUtil:BuyGameProduct(Player, id)
     end)
     
     if success then
-        Rayfield:Notify({Title = "Sent!", Content = "Request " .. fullName .. " dikirim.", Duration = 2})
+        Rayfield:Notify({Title = "Unit Purchase Sent", Content = "ID: " .. id, Duration = 2})
     else
-        warn("Gagal: " .. tostring(err))
+        warn("Gagal beli unit: " .. tostring(err))
     end
 end
 
--- Daftar Item Egg
+-- Daftar Item
 local eggList = {
     {name = "Celeste Egg", id = "CelesteEgg"},
     {name = "Fly Egg", id = "FlyEgg"},
@@ -52,61 +64,51 @@ local eggList = {
     {name = "Sirius Egg", id = "SiriusEgg"}
 }
 
--- Daftar Unit (Gampang buat lu tambah lagi nanti)
 local unitList = {
     {name = "Christmas Penguin", id = "Penguin_Christmas"},
     {name = "Snow Puff", id = "SnowWeasel"}
 }
 
 -------------------------------------------------------
--- 🛒 TAB 1: SHOP x1
+-- 🛒 TABS EGG (Jalur RF)
 -------------------------------------------------------
 Tab1:CreateSection("Single Purchase (x1)")
 for _, egg in ipairs(eggList) do
     Tab1:CreateButton({
         Name = "Buy " .. egg.name .. " x1",
-        Callback = function() buyItem(egg.id, "_x1") end,
+        Callback = function() buyEgg(egg.id, "_x1") end,
     })
 end
 
--------------------------------------------------------
--- 🛒 TAB 3: SHOP x3
--------------------------------------------------------
 Tab3:CreateSection("Triple Purchase (x3)")
 for _, egg in ipairs(eggList) do
     Tab3:CreateButton({
         Name = "Buy " .. egg.name .. " x3",
-        Callback = function() buyItem(egg.id, "_x3") end,
+        Callback = function() buyEgg(egg.id, "_x3") end,
     })
 end
 
--------------------------------------------------------
--- 🛒 TAB 10: SHOP x10
--------------------------------------------------------
 Tab10:CreateSection("Mega Purchase (x10)")
 for _, egg in ipairs(eggList) do
     Tab10:CreateButton({
         Name = "Buy " .. egg.name .. " x10",
-        Callback = function() buyItem(egg.id, "_x10") end,
+        Callback = function() buyEgg(egg.id, "_x10") end,
     })
 end
 
 -------------------------------------------------------
--- 🛒 TAB UNIT: UNIT SHOP
+-- 🛒 TAB UNIT (Jalur ProductUtil)
 -------------------------------------------------------
-TabUnit:CreateSection("Direct Unit Purchase")
+TabUnit:CreateSection("Direct Unit Purchase (ProductUtil)")
 for _, unit in ipairs(unitList) do
     TabUnit:CreateButton({
         Name = "Buy " .. unit.name,
-        Callback = function() buyItem(unit.id, "") end, -- Unit biasanya gak pake suffix _x1
+        Callback = function() buyUnitWithProductUtil(unit.id) end,
     })
 end
 
--------------------------------------------------------
--- 🎉 Notifikasi
--------------------------------------------------------
 Rayfield:Notify({
-    Title = "Multi-Tab Loaded",
-    Content = "Tab Unit Shop sudah siap, Gar!",
+    Title = "V6 Ready",
+    Content = "Unit Shop pake ProductUtil udah aktif!",
     Duration = 5
 })
