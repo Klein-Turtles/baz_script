@@ -8,25 +8,23 @@ local Window = Rayfield:CreateWindow({
     ConfigurationSaving = {Enabled = false}
 })
 
+-- 📦 Services & Globals
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Player = game.Players.LocalPlayer
+
+-- 🛠 Requirement Module
+local Shared = require(ReplicatedStorage:WaitForChild("Shared"))
+local ProductUtil = Shared("GameProductUtility")
+local ProductBuyRF = ReplicatedStorage:WaitForChild("Remote"):WaitForChild("ProductBuyRF")
+
 -- 📑 Definisi Tab
 local Tab1 = Window:CreateTab("Shop x1", nil)
 local Tab3 = Window:CreateTab("Shop x3", nil)
 local Tab10 = Window:CreateTab("Shop x10", nil)
 local TabUnit = Window:CreateTab("Unit Shop", nil)
-local TabFusion = Window:CreateTab("Fusion Menu", nil) -- Tab Baru buat temuan Dex lu
+local TabFusion = Window:CreateTab("Fusion Menu", nil)
 
--- 📦 Services & Remotes
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Player = game.Players.LocalPlayer
-
--- Requirement buat ProductUtil (Sesuaikan path Shared lu kalau error)
-local Shared = require(ReplicatedStorage:WaitForChild("Shared"))
-local ProductUtil = Shared("GameProductUtility")
-
--- Remote lama buat Egg
-local ProductBuyRF = ReplicatedStorage:WaitForChild("Remote"):WaitForChild("ProductBuyRF")
-
--- [Fungsi A] Untuk Egg (Jalur RemoteFunction)
+-- 🛠 [Fungsi A] Untuk Egg (RemoteFunction)
 local function buyEgg(itemName, suffix)
     local fullName = itemName .. suffix
     local args = {fullName, true, "ID"}
@@ -36,7 +34,7 @@ local function buyEgg(itemName, suffix)
     Rayfield:Notify({Title = "Egg Request Sent", Content = fullName, Duration = 2})
 end
 
--- [Fungsi B] Untuk Unit/Pet (Jalur ProductUtil Pcall)
+-- 🛠 [Fungsi B] Untuk Unit/Pet (ProductUtil)
 local function buyUnitWithProductUtil(id)
     local success, err = pcall(function()
         ProductUtil:BuyGameProduct(Player, id)
@@ -49,7 +47,7 @@ local function buyUnitWithProductUtil(id)
     end
 end
 
--- Daftar Item
+-- 📋 Data List
 local eggList = {
     {name = "Celeste Egg", id = "CelesteEgg"},
     {name = "Fly Egg", id = "FlyEgg"},
@@ -71,7 +69,7 @@ local unitList = {
 }
 
 -------------------------------------------------------
--- 🛒 TABS EGG (Jalur RF)
+-- 🛒 TAB EGG (x1, x3, x10)
 -------------------------------------------------------
 Tab1:CreateSection("Single Purchase (x1)")
 for _, egg in ipairs(eggList) do
@@ -98,7 +96,7 @@ for _, egg in ipairs(eggList) do
 end
 
 -------------------------------------------------------
--- 🛒 TAB UNIT (Jalur ProductUtil)
+-- 🛒 TAB UNIT SHOP
 -------------------------------------------------------
 TabUnit:CreateSection("Direct Unit Purchase (ProductUtil)")
 for _, unit in ipairs(unitList) do
@@ -109,36 +107,23 @@ for _, unit in ipairs(unitList) do
 end
 
 -------------------------------------------------------
--- 🧬 TAB FUSION (Bypass Access via Dex Hierarchy)
+-- 🧬 TAB FUSION (UI Control)
 -------------------------------------------------------
-TabFusion:CreateSection("Fusion Feature Access")
+TabFusion:CreateSection("Fusion GUI Access")
 
 TabFusion:CreateButton({
     Name = "Force Open Fusion Menu",
     Callback = function()
         local fusionScreen = Player.PlayerGui:FindFirstChild("ScreenFusion", true)
-        
         if fusionScreen then
-            fusionScreen.Enabled = true -- Aktifin induknya
-            
-            -- Mencari elemen visual berdasarkan temuan Dex
+            fusionScreen.Enabled = true
             local root = fusionScreen:FindFirstChild("Root", true)
             local choiceFrame = fusionScreen:FindFirstChild("ChoiceFrame", true)
-            
             if root then root.Visible = true end
             if choiceFrame then choiceFrame.Visible = true end
-            
-            Rayfield:Notify({
-                Title = "Fusion Accessed",
-                Content = "Menu Fusion dipaksa muncul!",
-                Duration = 3
-            })
+            Rayfield:Notify({Title = "Fusion Accessed", Content = "Menu Fusion Muncul!", Duration = 3})
         else
-            Rayfield:Notify({
-                Title = "Error",
-                Content = "ScreenFusion tidak ditemukan!",
-                Duration = 3
-            })
+            Rayfield:Notify({Title = "Error", Content = "ScreenFusion tidak ditemukan!", Duration = 3})
         end
     end,
 })
@@ -154,8 +139,42 @@ TabFusion:CreateButton({
     end,
 })
 
+-------------------------------------------------------
+-- ⚡ WORLD BYPASS (Auto Show Fusion Machine)
+-------------------------------------------------------
+-- Script ini berjalan otomatis saat script di-execute
+local function EnableFusionMachines()
+    for i = 1, 10 do -- Scan sampe island 10 buat jaga-jaga
+        local islandPath = "Island_" .. i
+        local worldArt = game.Workspace:FindFirstChild("Art")
+        if worldArt then
+            local island = worldArt:FindFirstChild(islandPath)
+            if island then
+                local env = island:FindFirstChild("ENV")
+                if env then
+                    local fusion = env:FindFirstChild("FusionMachine")
+                    if fusion then
+                        for _, part in pairs(fusion:GetDescendants()) do
+                            if part:IsA("BasePart") or part:IsA("MeshPart") then
+                                part.Transparency = 0
+                                part.CanCollide = true
+                            elseif part:IsA("ProximityPrompt") then
+                                part.Enabled = true
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- Jalankan fungsi bypass mesin
+EnableFusionMachines()
+
+-- Notifikasi Akhir
 Rayfield:Notify({
     Title = "Jatu Kece V7 Ready",
-    Content = "Semua fitur termasuk Fusion sudah siap!",
+    Content = "Semua fitur & Bypass Mesin Fusion Berhasil Dimuat!",
     Duration = 5
 })
