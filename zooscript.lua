@@ -2,8 +2,8 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-    Name = "Jatu Kece",
-    LoadingTitle = "Organizing Shop Tabs...",
+    Name = "Jatu Kece V7",
+    LoadingTitle = "Merging All Features...",
     LoadingSubtitle = "by Tegar",
     ConfigurationSaving = {Enabled = false}
 })
@@ -13,6 +13,7 @@ local Tab1 = Window:CreateTab("Shop x1", nil)
 local Tab3 = Window:CreateTab("Shop x3", nil)
 local Tab10 = Window:CreateTab("Shop x10", nil)
 local TabUnit = Window:CreateTab("Unit Shop", nil)
+local TabFusion = Window:CreateTab("Fusion Menu", nil) -- Tab Baru buat temuan Dex lu
 
 -- 📦 Services & Remotes
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -38,7 +39,6 @@ end
 -- [Fungsi B] Untuk Unit/Pet (Jalur ProductUtil Pcall)
 local function buyUnitWithProductUtil(id)
     local success, err = pcall(function()
-        -- Nembak langsung ke utilitas produk game
         ProductUtil:BuyGameProduct(Player, id)
     end)
     
@@ -108,8 +108,54 @@ for _, unit in ipairs(unitList) do
     })
 end
 
+-------------------------------------------------------
+-- 🧬 TAB FUSION (Bypass Access via Dex Hierarchy)
+-------------------------------------------------------
+TabFusion:CreateSection("Fusion Feature Access")
+
+TabFusion:CreateButton({
+    Name = "Force Open Fusion Menu",
+    Callback = function()
+        local fusionScreen = Player.PlayerGui:FindFirstChild("ScreenFusion", true)
+        
+        if fusionScreen then
+            fusionScreen.Enabled = true -- Aktifin induknya
+            
+            -- Mencari elemen visual berdasarkan temuan Dex
+            local root = fusionScreen:FindFirstChild("Root", true)
+            local choiceFrame = fusionScreen:FindFirstChild("ChoiceFrame", true)
+            
+            if root then root.Visible = true end
+            if choiceFrame then choiceFrame.Visible = true end
+            
+            Rayfield:Notify({
+                Title = "Fusion Accessed",
+                Content = "Menu Fusion dipaksa muncul!",
+                Duration = 3
+            })
+        else
+            Rayfield:Notify({
+                Title = "Error",
+                Content = "ScreenFusion tidak ditemukan!",
+                Duration = 3
+            })
+        end
+    end,
+})
+
+TabFusion:CreateButton({
+    Name = "Open Fusion Preview",
+    Callback = function()
+        local preview = Player.PlayerGui:FindFirstChild("ScreenFusionPreview", true)
+        if preview then
+            preview.Enabled = true
+            Rayfield:Notify({Title = "Preview Active", Content = "Menampilkan Preview", Duration = 2})
+        end
+    end,
+})
+
 Rayfield:Notify({
-    Title = "V6 Ready",
-    Content = "Unit Shop pake ProductUtil udah aktif!",
+    Title = "Jatu Kece V7 Ready",
+    Content = "Semua fitur termasuk Fusion sudah siap!",
     Duration = 5
 })
