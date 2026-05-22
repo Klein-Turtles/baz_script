@@ -3,7 +3,7 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
     Name = "Jatu Kece V7",
-    LoadingTitle = "Merging All Featuressss...",
+    LoadingTitle = "Adding Slime Dragon",
     LoadingSubtitle = "by Tegar",
     ConfigurationSaving = {Enabled = false}
 })
@@ -60,7 +60,8 @@ local eggList = {
     {name = "Flower Whale Egg", id = "FlowerWhaleEgg"},
     {name = "Pegasus Egg", id = "PegasusEgg"},
     {name = "Sirius Egg", id = "SiriusEgg"},
-    {name = "Oaken Egg", id = "OakenEgg"}
+    {name = "Oaken Egg", id = "OakenEgg"},
+    {name = "Slime Dragon Egg", id = "SlimeDragon"}
 }
 
 local unitList = {
